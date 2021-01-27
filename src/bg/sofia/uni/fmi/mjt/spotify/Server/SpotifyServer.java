@@ -7,25 +7,32 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
+import java.nio.file.Path;
 import java.util.Iterator;
 import java.util.Set;
 
 public class SpotifyServer implements AutoCloseable {
 
+    public static final int SERVER_PORT = 7777;
     private static final String SERVER_HOST = "localhost";
     private static final int BUFFER_SIZE = 1024;
-    public static final int SERVER_PORT = 7777;
     private final int port;
     private boolean runServer = true;
 
-    private SpotifyCommandInterpreter commandInterpreter = new SpotifyCommandInterpreter();
+    private SpotifyCommandInterpreter commandInterpreter;
 
     private ServerSocketChannel serverSocketChannel;
     private Selector selector;
     private ByteBuffer buffer;
 
-    public SpotifyServer(int port) {
+    private Path credentialsFile;
+
+    public SpotifyServer(int port, Path credentialsFile) {
         this.port = port;
+        this.credentialsFile = credentialsFile;
+
+        this.commandInterpreter = new SpotifyCommandInterpreter(this.credentialsFile);
+
         initialServerConfiguration();
 
         // allocate byte buffer
@@ -33,7 +40,7 @@ public class SpotifyServer implements AutoCloseable {
     }
 
     public static void main(String[] args) {
-        try (var wishListServer = new SpotifyServer(1234)) {
+        try (var wishListServer = new SpotifyServer(1234, Path.of("credentials.json"))) {
 
             wishListServer.start();
 
@@ -94,7 +101,7 @@ public class SpotifyServer implements AutoCloseable {
                             //System.out.println("User hard reset");
                             socketChannel.close();
                             keyIterator.remove();
-                       //     commandInterpreter.clearUserHardReset(socketChannel);
+                            //     commandInterpreter.clearUserHardReset(socketChannel);
                         }
 
                         if (r <= 0) {
