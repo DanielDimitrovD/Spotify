@@ -8,13 +8,12 @@ import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class SpotifyClientRepository {
 
     private final Map<String, String> clientCredentials = new HashMap<>();
+    private final Set<String> loggedUsers = new HashSet<>();
     private final Gson gson = new Gson();
 
     private final Path credentialsFile;
@@ -61,7 +60,12 @@ public class SpotifyClientRepository {
             return false;
         }
 
-        return clientCredentials.get(email).equals(password);
+        if (clientCredentials.get(email).equals(password)) {
+            loggedUsers.add(email);
+            return true;
+        }
+
+        return false;
     }
 
 
@@ -91,4 +95,6 @@ public class SpotifyClientRepository {
 
         return true;
     }
+
+
 }

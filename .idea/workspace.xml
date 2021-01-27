@@ -3,8 +3,9 @@
   <component name="ChangeListManager">
     <list default="true" id="596b398e-2482-41a0-91d7-6546410c5cf2" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/credentials.json" beforeDir="false" afterPath="$PROJECT_DIR$/credentials.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/bg/sofia/uni/fmi/mjt/spotify/Server/SpotifyCommandInterpreter.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/bg/sofia/uni/fmi/mjt/spotify/Server/SpotifyCommandInterpreter.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/bg/sofia/uni/fmi/mjt/spotify/Server/enums/SpotifyCommands.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/bg/sofia/uni/fmi/mjt/spotify/Server/enums/SpotifyCommands.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/bg/sofia/uni/fmi/mjt/spotify/Server/serverComponents/SpotifyClientRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/bg/sofia/uni/fmi/mjt/spotify/Server/serverComponents/SpotifyClientRepository.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -104,7 +105,7 @@
     <property name="project.structure.side.proportion" value="0.2" />
     <property name="settings.editor.selected.configurable" value="preferences.lookFeel" />
   </component>
-  <component name="RunManager" selected="Application.SpotifyClientRepository">
+  <component name="RunManager" selected="Application.Main">
     <configuration name="Main" type="Application" factoryName="Application" temporary="true">
       <option name="MAIN_CLASS_NAME" value="bg.sofia.uni.fmi.mjt.spotify.SpotifyClient" />
       <module name="Spotify" />
@@ -141,13 +142,15 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration default="true" type="ArquillianJUnit" factoryName="" nameIsGenerated="true">
+    <configuration default="true" type="ArquillianTestNG" factoryName="" nameIsGenerated="true">
       <option name="arquillianRunConfiguration">
         <value>
           <option name="containerStateName" value="" />
         </value>
       </option>
-      <option name="TEST_OBJECT" value="class" />
+      <option name="TEST_OBJECT" value="CLASS" />
+      <properties />
+      <listeners />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
@@ -159,9 +162,9 @@
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Application.SpotifyClientRepository" />
         <item itemvalue="Application.Main" />
         <item itemvalue="Application.SpotifyServer" />
+        <item itemvalue="Application.SpotifyClientRepository" />
       </list>
     </recent_temporary>
   </component>
@@ -173,7 +176,8 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1611735925412</updated>
-      <workItem from="1611735926661" duration="9252000" />
+      <workItem from="1611735926661" duration="10260000" />
+      <workItem from="1611756579752" duration="1378000" />
     </task>
     <servers />
   </component>

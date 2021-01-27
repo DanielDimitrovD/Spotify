@@ -32,8 +32,12 @@ public class SpotifyCommandInterpreter {
                 .filter(c -> clientCommand.equals(c.getCommand()))
                 .findFirst();
 
+        if (!command.isPresent()) {
+            return String.format("Unknown command%n");
+        }
+
         switch (command.get()) {
-            case REGISTER -> reply = register();
+            case REGISTER -> reply = register(tokens);
             case LOGIN -> reply = login();
             case DISCONNECT -> reply = disconnect();
             case SEARCH -> reply = search();
@@ -43,11 +47,35 @@ public class SpotifyCommandInterpreter {
             case SHOW_PLAYLIST -> reply = showPlaylist();
             case PLAY_SONG -> reply = playSong();
             case STOP -> reply = stop();
-            default -> throw new IllegalStateException("Unexpected value: " + command.get());
+            default -> reply = String.format("Unknown command%n");
         }
 
         return reply;
     }
+
+    private String register(String[] tokens) {
+
+        final int REGISTER_COMMAND_PARAMETERS = 3;
+
+        final int REGISTER_COMMAND_USERNAME_INDEX = 1;
+        final int REGISTER_COMMAND_PASSWORD_INDEX = 2;
+
+        if (tokens.length != REGISTER_COMMAND_PARAMETERS) {
+            return String.format("Wrong number of arguments for register command%n");
+        }
+
+        String email = tokens[REGISTER_COMMAND_USERNAME_INDEX];
+        String password = tokens[REGISTER_COMMAND_PASSWORD_INDEX];
+
+        boolean success = spotifyClientRepository.register(email, password);
+
+        if (success) {
+            return String.format("Account with email %s successfully registered%n", email);
+        } else {
+            return String.format("Account with email %s already registered. Please try another email%n", email);
+        }
+    }
+
 
     private String stop() {
         return null;
@@ -78,14 +106,12 @@ public class SpotifyCommandInterpreter {
     }
 
     private String disconnect() {
-        return null;
+        return String.format("User successfully disconnected%n");
     }
 
     private String login() {
         return null;
     }
 
-    private String register() {
-        return null;
-    }
+
 }
