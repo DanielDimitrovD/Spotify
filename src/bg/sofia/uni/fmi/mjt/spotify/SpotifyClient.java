@@ -14,6 +14,12 @@ public class SpotifyClient {
     private static final String SERVER_HOST = "localhost";
     private static ByteBuffer buffer = ByteBuffer.allocateDirect(512);
 
+    public static void main(String[] args) {
+        SpotifyClient spotifyClient = new SpotifyClient();
+
+        spotifyClient.startClient();
+    }
+
     public void startClient() {
 
         try (SocketChannel socketChannel = SocketChannel.open()) {
