@@ -38,7 +38,7 @@ public class SpotifyCommandInterpreter {
 
         switch (command.get()) {
             case REGISTER -> reply = register(tokens);
-            case LOGIN -> reply = login();
+            case LOGIN -> reply = login(tokens, userSocketChannel);
             case DISCONNECT -> reply = disconnect();
             case SEARCH -> reply = search();
             case TOP -> reply = top();
@@ -52,6 +52,30 @@ public class SpotifyCommandInterpreter {
 
         return reply;
     }
+
+    private String login(String[] tokens, SocketChannel userSocketChannel) {
+
+        final int LOGIN_COMMAND_PARAMETERS = 3;
+
+        final int LOGIN_COMMAND_USERNAME_INDEX = 1;
+        final int LOGIN_COMMAND_PASSWORD_INDEX = 2;
+
+        if (tokens.length != LOGIN_COMMAND_PARAMETERS) {
+            return String.format("Wrong number of arguments for login command%n");
+        }
+
+        String email = tokens[LOGIN_COMMAND_USERNAME_INDEX];
+        String password = tokens[LOGIN_COMMAND_PASSWORD_INDEX];
+
+        boolean success = spotifyClientRepository.login(email, password, userSocketChannel);
+
+        if (success) {
+            return String.format("Account with email %s logged in successfully%n", email);
+        } else {
+            return String.format("Invalid login attempt from account %s%n", email);
+        }
+    }
+
 
     private String register(String[] tokens) {
 
@@ -107,10 +131,6 @@ public class SpotifyCommandInterpreter {
 
     private String disconnect() {
         return String.format("User successfully disconnected%n");
-    }
-
-    private String login() {
-        return null;
     }
 
 
