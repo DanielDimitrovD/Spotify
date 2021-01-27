@@ -14,4 +14,4 @@ public enum SpotifyCommands {
     public String getCommand() {
         return command;
     }
-    }
+}
