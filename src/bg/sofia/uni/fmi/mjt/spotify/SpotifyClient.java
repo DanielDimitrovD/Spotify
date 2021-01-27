@@ -52,7 +52,7 @@ public class SpotifyClient {
 
                 System.out.print(reply);
 
-                if (reply.contains("Disconnected")) {
+                if (reply.contains("disconnected")) {
                     return;
                 }
 

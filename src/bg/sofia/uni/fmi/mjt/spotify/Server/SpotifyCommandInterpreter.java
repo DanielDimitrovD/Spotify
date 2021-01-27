@@ -39,7 +39,7 @@ public class SpotifyCommandInterpreter {
         switch (command.get()) {
             case REGISTER -> reply = register(tokens);
             case LOGIN -> reply = login(tokens, userSocketChannel);
-            case DISCONNECT -> reply = disconnect();
+            case DISCONNECT -> reply = disconnect(userSocketChannel);
             case SEARCH -> reply = search();
             case TOP -> reply = top();
             case CREATE_PLAYLIST -> reply = createPlaylist();
@@ -51,6 +51,11 @@ public class SpotifyCommandInterpreter {
         }
 
         return reply;
+    }
+
+    private String disconnect(SocketChannel userSocketChannel) {
+        spotifyClientRepository.disconnect(userSocketChannel);
+        return String.format("Account successfully disconnected%n");
     }
 
     private String login(String[] tokens, SocketChannel userSocketChannel) {
@@ -127,10 +132,6 @@ public class SpotifyCommandInterpreter {
 
     private String search() {
         return null;
-    }
-
-    private String disconnect() {
-        return String.format("User successfully disconnected%n");
     }
 
 
