@@ -1,5 +1,7 @@
 package bg.sofia.uni.fmi.mjt.spotify;
 
+import bg.sofia.uni.fmi.mjt.spotify.ClientExceptions.ClientConnectionException;
+
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
@@ -11,7 +13,7 @@ public class SpotifyClient {
     private static final int SERVER_PORT = 7777;
     private static final String SERVER_HOST = "localhost";
     private static ByteBuffer buffer = ByteBuffer.allocateDirect(512);
-    
+
     public void startClient() {
 
         try (SocketChannel socketChannel = SocketChannel.open()) {
@@ -50,8 +52,7 @@ public class SpotifyClient {
 
             }
         } catch (IOException e) {
-            System.out.println("There is a problem with the network communication");
-            e.printStackTrace();
+            throw new ClientConnectionException("There is a problem with the network communication", e.getCause());
         }
 
     }
