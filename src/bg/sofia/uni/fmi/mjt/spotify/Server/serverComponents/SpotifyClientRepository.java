@@ -5,15 +5,18 @@ import com.google.gson.reflect.TypeToken;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.nio.channels.SocketChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 public class SpotifyClientRepository {
 
     private final Map<String, String> clientCredentials = new HashMap<>();
-    private final Set<String> loggedUsers = new HashSet<>();
+    private final Map<SocketChannel, String> loggedUsers = new HashMap<>();
     private final Gson gson = new Gson();
 
     private final Path credentialsFile;
@@ -42,6 +45,7 @@ public class SpotifyClientRepository {
 
             System.out.println(users.toString());
         } catch (IOException e) {
+            //TODO add exception
             throw new UnsupportedOperationException();
         }
     }
@@ -50,7 +54,7 @@ public class SpotifyClientRepository {
         return Arrays.stream(arguments).noneMatch(e -> e == null);
     }
 
-    public boolean login(String email, String password) {
+    public boolean login(String email, String password, SocketChannel userChannel) {
 
         if (!validateArguments(email, password)) {
             throw new IllegalArgumentException("parameter in method login is null");
@@ -61,7 +65,7 @@ public class SpotifyClientRepository {
         }
 
         if (clientCredentials.get(email).equals(password)) {
-            loggedUsers.add(email);
+            loggedUsers.put(userChannel, email);
             return true;
         }
 
@@ -69,7 +73,7 @@ public class SpotifyClientRepository {
     }
 
 
-    public void writeCredentialsToJson() {
+    private void writeCredentialsToJson() {
         String toJson = gson.toJson(clientCredentials, mapType);
 
         try {
