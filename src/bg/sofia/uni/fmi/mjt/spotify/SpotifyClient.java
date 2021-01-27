@@ -2,6 +2,7 @@ package bg.sofia.uni.fmi.mjt.spotify;
 
 import bg.sofia.uni.fmi.mjt.spotify.ClientExceptions.ClientConnectionException;
 
+import javax.sound.sampled.AudioFormat;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
@@ -13,6 +14,8 @@ public class SpotifyClient {
     private static final int SERVER_PORT = 7777;
     private static final String SERVER_HOST = "localhost";
     private static ByteBuffer buffer = ByteBuffer.allocateDirect(512);
+
+
 
     public static void main(String[] args) {
         SpotifyClient spotifyClient = new SpotifyClient();
