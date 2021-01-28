@@ -1,5 +1,8 @@
 package bg.sofia.uni.fmi.mjt.spotify.Server.serverComponents;
 
+import bg.sofia.uni.fmi.mjt.spotify.Server.dto.AudioFormatDTO;
+
+import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.SourceDataLine;
@@ -10,6 +13,17 @@ public class ServerSpotifyStreamer {
     public static void main(String[] args) {
 
         try {
+//
+//            AudioFormat format = AudioSystem.getAudioInputStream(new File("../songs/Little Mix - DNA.wav"))
+//                    .getFormat();
+//
+//            System.out.println(format.toString());
+//
+//            AudioFormatDTO dto = new AudioFormatDTO(format.getEncoding(), format.getSampleRate(), format.getSampleSizeInBits(),
+//                    format.getChannels(), format.getFrameSize(), format.getFrameRate(), format.isBigEndian());
+//
+//            System.out.println(dto.toString());
+//
 
             AudioInputStream stream = AudioSystem.getAudioInputStream(new File("../songs/Little Mix - DNA.wav"));
             SourceDataLine dataLine = AudioSystem.getSourceDataLine(stream.getFormat());
@@ -21,7 +35,7 @@ public class ServerSpotifyStreamer {
 
             byte[] bytes = new byte[1024];
 
-            stream.available();
+           // stream.available();
 
             while ((r = stream.read(bytes)) != -1) {
                 dataLine.write(bytes, 0, r);
