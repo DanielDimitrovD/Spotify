@@ -42,7 +42,22 @@ public class SpotifyServer implements AutoCloseable {
     private Set<SocketChannel> streamingClients = new HashSet<>();
 
 
+    private Map<SocketChannel, Integer> userToSongMap = new HashMap<>();
+
+    private Map<Integer, String> songsMap = new HashMap<>();
+
     public SpotifyServer(int port, Path credentialsFile) {
+
+        songsMap.putAll(Map.of(
+                1, "Ice Cream - Захир (HD)",
+                2, "Iggy Azalea - Black Widow ft. Rita Ora",
+                3, "Iggy Azalea - Fancy ft. Charli XCX",
+                4, "INNA - Take Me Higher (by Play&amp;Win) [Online Video]",
+                5, "Inna feat. Marian Hill - Diggy Down",
+                6, "Jason Derulo - &quot;Talk Dirty&quot; feat. 2Chainz (Official HD Music Video)",
+                7, "Jason Derulo - Wiggle feat. Snoop Dogg (Official HD Music Video)",
+                8, "Jay Z ft. Kanye West - Niggas in Paris (Official music video)"));
+
         this.port = port;
         this.credentialsFile = credentialsFile;
 
@@ -130,9 +145,11 @@ public class SpotifyServer implements AutoCloseable {
 
         songCurrentBytesMap.putIfAbsent(socketChannel, 0L);
 
-        try (AudioInputStream stream = AudioSystem.getAudioInputStream(
-                new File("../songs/Little Mix - DNA.wav"))) {
+        System.out.println();
 
+        try (AudioInputStream stream = AudioSystem.getAudioInputStream(
+                new File("../songs/" + songsMap.get(userToSongMap.get(socketChannel))
+                         + ".wav"))) {
 
             long currentPositionInBytes = songCurrentBytesMap.get(socketChannel);
 
@@ -163,6 +180,7 @@ public class SpotifyServer implements AutoCloseable {
             if (r == -1) {
                 songCurrentBytesMap.put(socketChannel, 0L);
                 streamingClients.remove(socketChannel);
+                userToSongMap.remove(socketChannel);
                 key.interestOps(SelectionKey.OP_READ);
             }
         }
@@ -205,6 +223,10 @@ public class SpotifyServer implements AutoCloseable {
         //TODO fix desing stream music
         if (userMessage.contains("play")) {
 
+            int songIndex = Integer.parseInt(userMessage.split("\\s+")[1]);
+
+            userToSongMap.put(socketChannel, songIndex);
+
             System.out.println("want to stream music. Sending music info to client");
 
             byte[] bytes = playSong(socketChannel);
@@ -218,57 +240,10 @@ public class SpotifyServer implements AutoCloseable {
 
             streamingClients.add(socketChannel);
 
+            userToSongMap.put(socketChannel, Integer.parseInt(userMessage.split("\\s+")[1]));
 
             // preregister key
             key.interestOps(SelectionKey.OP_WRITE);
-
-//                            byte[] buff = new byte[BUFFER_SIZE];
-//
-////                            AudioInputStream stream = AudioSystem.getAudioInputStream(
-////                                    new File("../songs/Little Mix - DNA.wav"));
-//
-//                            FileInputStream stream = new FileInputStream("../songs/Little Mix - DNA.wav");
-//
-//                            System.out.println(Files.size(Path.of("../songs/Little Mix - DNA.wav")));
-
-
-//                            int packages = 0;
-//
-//                            int read = 0;
-//
-//                            long sendBytes = 0;
-//
-//                            while ((read = stream.read(buff)) != -1) {
-//
-////                                System.out.println("read bytes " + read);
-////
-////                                System.out.println("sending package " + packages++);
-//
-//                                byte[] remaining = new byte[read];
-//
-//                                sendBytes += remaining.length;
-//
-//                                for (int i = 0; i < remaining.length; i++) {
-//                                    remaining[i] = buff[i];
-//                                }
-//
-//
-//                                buffer.put(remaining);
-//                                buffer.flip();
-//
-//                                socketChannel.write(buffer);
-//
-//                                buffer.clear();
-//
-//                                socketChannel.read(buffer);
-//                                buffer.clear();
-//
-////                                socketChannel.read(buffer);
-////                                buffer.clear();
-//
-//                            }
-
-//                            System.out.println("Send bytes to client:" + sendBytes);
 
         } else {
 
@@ -304,16 +279,26 @@ public class SpotifyServer implements AutoCloseable {
 
     private byte[] playSong(SocketChannel userSocketChannel) {
 
-        try {
-            AudioFormat format = AudioSystem.getAudioInputStream(new File("../songs/Little Mix - DNA.wav"))
-                    .getFormat();
 
-            long songSizeInBytes = Files.size(Path.of("../songs/Little Mix - DNA.wav"));
+        try {
+
+
+            System.out.println("../songs/" + songsMap.get(userToSongMap.get(userSocketChannel))
+                               + ".wav");
+
+            AudioFormat format = AudioSystem.getAudioInputStream(new File("../songs/" +
+                                                                          songsMap.get(userToSongMap.get(userSocketChannel))
+                                                                          + ".wav")).getFormat();
+
+
+            long songSizeInBytes = Files.size(Path.of("../songs/" + songsMap.get(userToSongMap.get(userSocketChannel))
+                                                      + ".wav"));
+
 
             AudioFormatDTO dto = new AudioFormatDTO(format.getEncoding(), format.getSampleRate(), format.getSampleSizeInBits(),
                     format.getChannels(), format.getFrameSize(), format.getFrameRate(), format.isBigEndian(), songSizeInBytes);
 
-            //System.out.println(dto.toString());
+            System.out.println(dto.toString());
 
             return objectToByteArray(dto);
         } catch (IOException | UnsupportedAudioFileException e) {

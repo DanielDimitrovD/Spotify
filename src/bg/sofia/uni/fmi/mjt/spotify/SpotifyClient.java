@@ -10,6 +10,7 @@ import java.io.ObjectInputStream;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
+import java.util.List;
 import java.util.Scanner;
 
 public class SpotifyClient {
@@ -25,6 +26,19 @@ public class SpotifyClient {
         spotifyClient.startClient();
     }
 
+    private void printMenu() {
+        System.out.println(String.join(System.lineSeparator(),
+                List.of(
+                        "1. Ice Cream - Захир (HD)%n",
+                        "2. Iggy Azalea - Black Widow ft. Rita Ora",
+                        "3. Iggy Azalea - Fancy ft. Charli XCX",
+                        "4. INNA - Take Me Higher (by Play&amp;Win) [Online Video]",
+                        "5. Inna feat. Marian Hill - Diggy Down",
+                        "6. Jason Derulo - &quot;Talk Dirty&quot; feat. 2Chainz (Official HD Music Video)",
+                        "7. Jason Derulo - Wiggle feat. Snoop Dogg (Official HD Music Video)",
+                        "8. Jay Z ft. Kanye West - Niggas in Paris (Official music video)")));
+    }
+
     public void startClient() {
 
         try (SocketChannel socketChannel = SocketChannel.open()) {
@@ -38,6 +52,8 @@ public class SpotifyClient {
             while (true) {
 
                 System.out.println("=>");
+
+                printMenu();
 
                 //    System.out.println("Enter message");
                 String message = String.format("%s%n", scanner.nextLine());
