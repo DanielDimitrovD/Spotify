@@ -10,37 +10,42 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
-import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class SpotifyStreamer {
 
-    private String musicFolderURL = "D:\\4-course\\songs\\";
-
+    private static final int BUFFER_SIZE = 16_384;
+    private String musicFolderURL;
     private Map<SocketChannel, Long> songCurrentBytesMap = new HashMap<>();
-
     private Map<SocketChannel, Integer> userToSongMap = new HashMap<>();
-
     private Map<Integer, String> songsMap = new HashMap<>();
 
-    private static final int BUFFER_SIZE = 16_384;
+    public SpotifyStreamer(String musicFolderURL) {
+        this.musicFolderURL = musicFolderURL;
+        initializeSongMap();
+    }
 
-    public SpotifyStreamer() {
-        songsMap.putAll(Map.of(
-                1, "Ice Cream - Захир (HD)",
-                2, "Iggy Azalea - Black Widow ft. Rita Ora",
-                3, "Iggy Azalea - Fancy ft. Charli XCX",
-                4, "INNA - Take Me Higher (by Play&amp;Win) [Online Video]",
-                5, "Inna feat. Marian Hill - Diggy Down",
-                6, "Jason Derulo - &quot;Talk Dirty&quot; feat. 2Chainz (Official HD Music Video)",
-                7, "Jason Derulo - Wiggle feat. Snoop Dogg (Official HD Music Video)",
-                8, "Jay Z ft. Kanye West - Niggas in Paris (Official music video)",
-                9, "Eminem - Till I Collapse",
-                10, "Papi Hans - Hubavo mi stava Х2 (ft. Sando & Mando)"));
+    private void initializeSongMap() {
+        try {
+            int i = 1;
+            Stream<Path> songs = Files.walk(Path.of(musicFolderURL));
+
+            List<String> songsNames = songs.map(s -> s.getFileName().toString())
+                    .collect(Collectors.toList());
+
+            for (String song : songsNames) {
+                songsMap.put(i++, song);
+            }
+        } catch (Exception e) {
+            throw new UnsupportedOperationException();
+        }
     }
 
     public void setSongForUser(SocketChannel userChannel, int songIndex) {
@@ -49,21 +54,18 @@ public class SpotifyStreamer {
 
     public byte[] getAudioFormatHeaders(SocketChannel userSocketChannel) {
 
+        String songAbsolutePath = musicFolderURL + songsMap.get(userToSongMap.get(userSocketChannel));
+
         try {
-            System.out.println("../songs/" + songsMap.get(userToSongMap.get(userSocketChannel))
-                               + ".wav");
+            System.out.println(songAbsolutePath);
 
-            AudioFormat format = AudioSystem.getAudioInputStream(new File("../songs/" +
-                                                                          songsMap.get(userToSongMap.get(userSocketChannel))
-                                                                          + ".wav")).getFormat();
+            AudioFormat format = AudioSystem.getAudioInputStream(new File(songAbsolutePath)).getFormat();
 
+            long songSizeInBytes = Files.size(Path.of(songAbsolutePath));
 
-            long songSizeInBytes = Files.size(Path.of("../songs/" + songsMap.get(userToSongMap.get(userSocketChannel))
-                                                      + ".wav"));
-
-
-            AudioFormatDTO dto = new AudioFormatDTO(format.getEncoding(), format.getSampleRate(), format.getSampleSizeInBits(),
-                    format.getChannels(), format.getFrameSize(), format.getFrameRate(), format.isBigEndian(), songSizeInBytes);
+            AudioFormatDTO dto = new AudioFormatDTO(format.getEncoding(), format.getSampleRate(),
+                    format.getSampleSizeInBits(), format.getChannels(), format.getFrameSize(), format.getFrameRate(),
+                    format.isBigEndian(), songSizeInBytes);
 
             System.out.println(dto.toString());
 
@@ -91,13 +93,13 @@ public class SpotifyStreamer {
     }
 
     public byte[] readMusicChunk(SocketChannel socketChannel) throws IOException, UnsupportedAudioFileException {
-        songCurrentBytesMap.putIfAbsent(socketChannel, 35_000_000L);
+        songCurrentBytesMap.putIfAbsent(socketChannel, 0L);
 
         System.out.println();
 
-        try (AudioInputStream stream = AudioSystem.getAudioInputStream(
-                new File(musicFolderURL + songsMap.get(userToSongMap.get(socketChannel))
-                         + ".wav"))) {
+        String songAbsolutePath = musicFolderURL + songsMap.get(userToSongMap.get(socketChannel));
+
+        try (AudioInputStream stream = AudioSystem.getAudioInputStream(new File(songAbsolutePath))) {
 
             long currentPositionInBytes = songCurrentBytesMap.get(socketChannel);
 
@@ -127,9 +129,9 @@ public class SpotifyStreamer {
         }
     }
 
-        private void clearStreamingSocketChannel(SocketChannel socketChannel) {
-            songCurrentBytesMap.put(socketChannel, 0L);
-            userToSongMap.remove(socketChannel);
-        }
+    private void clearStreamingSocketChannel(SocketChannel socketChannel) {
+        songCurrentBytesMap.put(socketChannel, 0L);
+        userToSongMap.remove(socketChannel);
+    }
 
 }

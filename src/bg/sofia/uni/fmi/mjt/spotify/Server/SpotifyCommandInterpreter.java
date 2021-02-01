@@ -1,19 +1,13 @@
 package bg.sofia.uni.fmi.mjt.spotify.Server;
 
-import bg.sofia.uni.fmi.mjt.spotify.Server.dto.AudioFormatDTO;
 import bg.sofia.uni.fmi.mjt.spotify.Server.enums.SpotifyCommands;
 import bg.sofia.uni.fmi.mjt.spotify.Server.serverComponents.SpotifyClientRepository;
 
-import javax.sound.sampled.AudioFormat;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.UnsupportedAudioFileException;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Optional;
@@ -55,48 +49,12 @@ public class SpotifyCommandInterpreter {
 //            case CREATE_PLAYLIST -> reply = createPlaylist();
 //            case ADD_SONG_TO -> reply = addSongTo();
 //            case SHOW_PLAYLIST -> reply = showPlaylist();
-            case PLAY_SONG -> reply = playSong(userSocketChannel);
+            //           case PLAY_SONG -> reply = playSong(userSocketChannel);
 //            case STOP -> reply = stop();
 //            default -> reply = String.format("Unknown command%n");
         }
 
         return reply;
-    }
-
-    private byte[] objectToByteArray(Object object) {
-        try (ByteArrayOutputStream bos = new ByteArrayOutputStream();
-             ObjectOutputStream out = new ObjectOutputStream(bos)) {
-            out.writeObject(object);
-
-            System.out.println(object.toString());
-
-            return bos.toByteArray();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        return null;
-    }
-
-    private byte[] playSong(SocketChannel userSocketChannel) {
-
-        try {
-            AudioFormat format = AudioSystem.getAudioInputStream(new File("../songs/Little Mix - DNA.wav"))
-                    .getFormat();
-
-            long fileSizeInBytes = Files.size(Path.of("../songs/Little Mix - DNA.wav"));
-
-            AudioFormatDTO dto = new AudioFormatDTO(format.getEncoding(), format.getSampleRate(), format.getSampleSizeInBits(),
-                    format.getChannels(), format.getFrameSize(), format.getFrameRate(), format.isBigEndian(), fileSizeInBytes);
-
-            System.out.println(dto.toString());
-
-            return objectToByteArray(dto);
-        } catch (IOException | UnsupportedAudioFileException e) {
-            e.printStackTrace();
-        }
-
-        return null;
     }
 
     private byte[] disconnect(SocketChannel userSocketChannel) {

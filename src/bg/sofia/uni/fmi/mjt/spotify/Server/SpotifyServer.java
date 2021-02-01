@@ -30,12 +30,16 @@ public class SpotifyServer implements AutoCloseable {
     private ByteBuffer buffer;
 
     private Path credentialsFile;
+    private String musicFolderURL;
 
-    private SpotifyStreamer spotifyStreamer = new SpotifyStreamer();
+    private SpotifyStreamer spotifyStreamer;
 
-    public SpotifyServer(int port, Path credentialsFile) {
+    public SpotifyServer(int port, Path credentialsFile, String musicFolderURL) {
         this.port = port;
         this.credentialsFile = credentialsFile;
+        this.musicFolderURL = musicFolderURL;
+
+        this.spotifyStreamer = new SpotifyStreamer(musicFolderURL);
 
         this.commandInterpreter = new SpotifyCommandInterpreter(this.credentialsFile);
 
@@ -46,8 +50,11 @@ public class SpotifyServer implements AutoCloseable {
     }
 
     public static void main(String[] args) {
-        try (var wishListServer = new SpotifyServer(1234, Path.of("credentials.json"))) {
 
+        final String musicFolderURL = "D:\\4-course\\songs\\";
+        final Path credentials = Path.of("credentials.json");
+
+        try (var wishListServer = new SpotifyServer(1234, credentials, musicFolderURL)) {
             wishListServer.start();
 
         } catch (Exception e) {
@@ -119,15 +126,15 @@ public class SpotifyServer implements AutoCloseable {
 
         byte[] bytes = spotifyStreamer.readMusicChunk(socketChannel);
 
-            // reset song
-            if (bytes.length == 1) {
-                clearStreamingSocketChannel(socketChannel);
-                key.interestOps(SelectionKey.OP_READ);
-                return;
-            }
-
-            streamMusicChunk(socketChannel, bytes);
+        // reset song
+        if (bytes.length == 1) {
+            clearStreamingSocketChannel(socketChannel);
+            key.interestOps(SelectionKey.OP_READ);
+            return;
         }
+
+        streamMusicChunk(socketChannel, bytes);
+    }
 
     private void streamMusicChunk(SocketChannel socketChannel, byte[] bytes) throws IOException {
         buffer.put(bytes);

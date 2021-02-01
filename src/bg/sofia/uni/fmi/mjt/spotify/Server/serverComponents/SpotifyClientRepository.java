@@ -75,7 +75,7 @@ public class SpotifyClientRepository {
     public void disconnect(SocketChannel userChannel) {
         loggedUsers.remove(userChannel);
     }
-    
+
     private void writeCredentialsToJson() {
         String toJson = gson.toJson(clientCredentials, mapType);
 
