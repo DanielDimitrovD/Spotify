@@ -82,8 +82,6 @@ public class SpotifyClient {
 //                            dto.getSampleSizeInBits(), dto.getChannels(), dto.getFrameSize(),
 //                            dto.getFrameRate(), dto.isBigEndian());
 
-                    long songSizeInBytes = dto.getSongSizeInBytes();
-
                     AudioFormat format = new AudioFormat(new AudioFormat.Encoding(dto.getEncoding()), dto.getSampleRate(),
                             dto.getSampleSizeInBits(), dto.getChannels(), dto.getFrameSize(),
                             dto.getFrameRate(), dto.isBigEndian());
@@ -121,11 +119,9 @@ public class SpotifyClient {
                             break;
                         }
 
-                        //     System.out.println("writing package" + packages++);
                         dataLine.write(bytes, 0, bytes.length);
                     }
                 } else {
-
 
                     String reply = new String(byteArray, "UTF-8");
 
