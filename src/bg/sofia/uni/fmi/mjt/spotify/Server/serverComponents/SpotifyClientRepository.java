@@ -21,6 +21,7 @@ public class SpotifyClientRepository {
 
     private final Path credentialsFile;
 
+
     private final Type mapType = new TypeToken<Map<String, String>>() {
     }.getType();
 
@@ -103,5 +104,8 @@ public class SpotifyClientRepository {
         return true;
     }
 
+    public String getEmail(SocketChannel userChannel) {
+        return loggedUsers.get(userChannel);
+    }
 
 }

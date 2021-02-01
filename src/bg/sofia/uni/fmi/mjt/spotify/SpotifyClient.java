@@ -74,7 +74,7 @@ public class SpotifyClient {
                 buffer.get(byteArray);
 
 
-                if (message.contains("play")) {
+                if (message.startsWith("play")) {
 
                     AudioFormatDTO dto = bytesToObject(byteArray);
 

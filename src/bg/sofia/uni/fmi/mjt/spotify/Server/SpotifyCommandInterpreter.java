@@ -1,23 +1,29 @@
 package bg.sofia.uni.fmi.mjt.spotify.Server;
 
+import bg.sofia.uni.fmi.mjt.spotify.Server.dto.Playlist;
 import bg.sofia.uni.fmi.mjt.spotify.Server.enums.SpotifyCommands;
 import bg.sofia.uni.fmi.mjt.spotify.Server.serverComponents.SpotifyClientRepository;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.ObjectOutputStream;
+import java.lang.reflect.Type;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.Optional;
+import java.nio.file.StandardOpenOption;
+import java.util.*;
 
 public class SpotifyCommandInterpreter {
 
     private final SpotifyClientRepository spotifyClientRepository;
 
-    public SpotifyCommandInterpreter(Path credentialsFile) {
+    private final Path playlistFile;
+
+    public SpotifyCommandInterpreter(Path credentialsFile, Path playlistFile) {
         this.spotifyClientRepository = new SpotifyClientRepository(credentialsFile);
+        this.playlistFile = playlistFile;
     }
 
     public byte[] interpretCommand(String userMessage, SocketChannel userSocketChannel) {
@@ -46,7 +52,7 @@ public class SpotifyCommandInterpreter {
             case DISCONNECT -> reply = disconnect(userSocketChannel);
 //            case SEARCH -> reply = search();
 //            case TOP -> reply = top();
-//            case CREATE_PLAYLIST -> reply = createPlaylist();
+            case CREATE_PLAYLIST -> reply = createPlaylist(tokens, userSocketChannel);
 //            case ADD_SONG_TO -> reply = addSongTo();
 //            case SHOW_PLAYLIST -> reply = showPlaylist();
             //           case PLAY_SONG -> reply = playSong(userSocketChannel);
@@ -123,8 +129,36 @@ public class SpotifyCommandInterpreter {
         return null;
     }
 
-    private String createPlaylist() {
-        return null;
+    private byte[] createPlaylist(String[] tokens, SocketChannel userSocketChannel) {
+
+        final Type token = new TypeToken<Map<String, List<Playlist>>>() {
+        }.getType();
+
+        final Gson gson = new Gson();
+
+        String email = spotifyClientRepository.getEmail(userSocketChannel);
+
+        final int PLAYLIST_COMMAND_NAME_INDEX = 1;
+
+        String playlistName = tokens[PLAYLIST_COMMAND_NAME_INDEX];
+
+        final Map<String, List<Playlist>> playlistMap = new HashMap<>();
+
+        final List<Playlist> userPlaylist = new ArrayList<>();
+        userPlaylist.add(new Playlist(playlistName, new ArrayList<>()));
+
+        playlistMap.put(email, userPlaylist);
+
+        String toJson = gson.toJson(playlistMap, token);
+
+        try {
+            Files.writeString(playlistFile, toJson, StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE);
+
+            return "Playlist successfully created".getBytes(StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return "Playlist not created error".getBytes(StandardCharsets.UTF_8);
+        }
     }
 
     private String top() {

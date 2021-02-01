@@ -34,14 +34,14 @@ public class SpotifyServer implements AutoCloseable {
 
     private SpotifyStreamer spotifyStreamer;
 
-    public SpotifyServer(int port, Path credentialsFile, String musicFolderURL) {
+    public SpotifyServer(int port, Path credentialsFile, Path playlistFile, String musicFolderURL) {
         this.port = port;
         this.credentialsFile = credentialsFile;
         this.musicFolderURL = musicFolderURL;
 
         this.spotifyStreamer = new SpotifyStreamer(musicFolderURL);
 
-        this.commandInterpreter = new SpotifyCommandInterpreter(this.credentialsFile);
+        this.commandInterpreter = new SpotifyCommandInterpreter(this.credentialsFile, playlistFile);
 
         initialServerConfiguration();
 
@@ -53,8 +53,9 @@ public class SpotifyServer implements AutoCloseable {
 
         final String musicFolderURL = "D:\\4-course\\songs\\";
         final Path credentials = Path.of("credentials.json");
+        final Path playlists = Path.of("playlists.json");
 
-        try (var wishListServer = new SpotifyServer(1234, credentials, musicFolderURL)) {
+        try (var wishListServer = new SpotifyServer(1234, credentials, playlists, musicFolderURL)) {
             wishListServer.start();
 
         } catch (Exception e) {
@@ -195,7 +196,7 @@ public class SpotifyServer implements AutoCloseable {
 
         buffer.clear();
 
-        if (userMessage.contains("play")) {
+        if (userMessage.startsWith("play")) {
 
             int songIndex = Integer.parseInt(userMessage.split("\\s+")[1]);
 
