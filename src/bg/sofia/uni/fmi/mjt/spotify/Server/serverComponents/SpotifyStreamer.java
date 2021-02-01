@@ -17,7 +17,7 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ServerSpotifyStreamer {
+public class SpotifyStreamer {
 
     private String musicFolderURL = "D:\\4-course\\songs\\";
 
@@ -29,7 +29,7 @@ public class ServerSpotifyStreamer {
 
     private static final int BUFFER_SIZE = 16_384;
 
-    public ServerSpotifyStreamer() {
+    public SpotifyStreamer() {
         songsMap.putAll(Map.of(
                 1, "Ice Cream - Захир (HD)",
                 2, "Iggy Azalea - Black Widow ft. Rita Ora",

@@ -1,15 +1,9 @@
 package bg.sofia.uni.fmi.mjt.spotify.Server;
 
-import bg.sofia.uni.fmi.mjt.spotify.Server.dto.AudioFormatDTO;
-import bg.sofia.uni.fmi.mjt.spotify.Server.serverComponents.ServerSpotifyStreamer;
+import bg.sofia.uni.fmi.mjt.spotify.Server.serverComponents.SpotifyStreamer;
 
-import javax.sound.sampled.AudioFormat;
-import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
 import java.nio.ByteBuffer;
@@ -17,11 +11,8 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Set;
 
 public class SpotifyServer implements AutoCloseable {
@@ -40,7 +31,7 @@ public class SpotifyServer implements AutoCloseable {
 
     private Path credentialsFile;
 
-    private ServerSpotifyStreamer spotifyStreamer = new ServerSpotifyStreamer();
+    private SpotifyStreamer spotifyStreamer = new SpotifyStreamer();
 
     public SpotifyServer(int port, Path credentialsFile) {
         this.port = port;
