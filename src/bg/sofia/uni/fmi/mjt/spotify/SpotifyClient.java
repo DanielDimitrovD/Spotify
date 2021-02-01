@@ -36,7 +36,9 @@ public class SpotifyClient {
                         "5. Inna feat. Marian Hill - Diggy Down",
                         "6. Jason Derulo - &quot;Talk Dirty&quot; feat. 2Chainz (Official HD Music Video)",
                         "7. Jason Derulo - Wiggle feat. Snoop Dogg (Official HD Music Video)",
-                        "8. Jay Z ft. Kanye West - Niggas in Paris (Official music video)")));
+                        "8. Jay Z ft. Kanye West - Niggas in Paris (Official music video)",
+                        "9. Eminem - Till I Collapse",
+                        "10. Papi Hans - Hubavo mi stava Х2 (ft. Sando & Mando)")));
     }
 
     public void startClient() {
@@ -97,11 +99,13 @@ public class SpotifyClient {
 
                     long receivedBytes = 0;
 
-                    while (receivedBytes < songSizeInBytes) {
+                    int r;
+
+                    while (true) {
 
                         buffer.clear();
 
-                        socketChannel.read(buffer);
+                        r = socketChannel.read(buffer);
                         buffer.flip();
 
                         byte[] bytes = new byte[buffer.remaining()];
@@ -110,6 +114,12 @@ public class SpotifyClient {
                         receivedBytes += bytes.length;
 
                         System.out.println("received bytes:" + receivedBytes);
+
+
+                        if (r == 1) {
+                            dataLine.close();
+                            break;
+                        }
 
                         //     System.out.println("writing package" + packages++);
                         dataLine.write(bytes, 0, bytes.length);

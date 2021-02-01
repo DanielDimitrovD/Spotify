@@ -19,7 +19,10 @@ import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 
 public class SpotifyServer implements AutoCloseable {
 
@@ -39,9 +42,6 @@ public class SpotifyServer implements AutoCloseable {
 
     private Map<SocketChannel, Long> songCurrentBytesMap = new HashMap<>();
 
-    private Set<SocketChannel> streamingClients = new HashSet<>();
-
-
     private Map<SocketChannel, Integer> userToSongMap = new HashMap<>();
 
     private Map<Integer, String> songsMap = new HashMap<>();
@@ -56,7 +56,9 @@ public class SpotifyServer implements AutoCloseable {
                 5, "Inna feat. Marian Hill - Diggy Down",
                 6, "Jason Derulo - &quot;Talk Dirty&quot; feat. 2Chainz (Official HD Music Video)",
                 7, "Jason Derulo - Wiggle feat. Snoop Dogg (Official HD Music Video)",
-                8, "Jay Z ft. Kanye West - Niggas in Paris (Official music video)"));
+                8, "Jay Z ft. Kanye West - Niggas in Paris (Official music video)",
+                9, "Eminem - Till I Collapse",
+                10, "Papi Hans - Hubavo mi stava Х2 (ft. Sando & Mando)"));
 
         this.port = port;
         this.credentialsFile = credentialsFile;
@@ -137,13 +139,9 @@ public class SpotifyServer implements AutoCloseable {
 
         SocketChannel socketChannel = (SocketChannel) key.channel();
 
-        if (!streamingClients.contains(socketChannel)) {
-            return;
-        }
-
         buffer.clear();
 
-        songCurrentBytesMap.putIfAbsent(socketChannel, 0L);
+        songCurrentBytesMap.putIfAbsent(socketChannel, 35_000_000L);
 
         System.out.println();
 
@@ -166,25 +164,51 @@ public class SpotifyServer implements AutoCloseable {
 
             int availableBytes = r < BUFFER_SIZE ? r : BUFFER_SIZE;
 
+            // reset song
+            if (r == -1) {
+                clearStreamingSocketChannel(socketChannel);
+                key.interestOps(SelectionKey.OP_READ);
+                return;
+            }
+
             System.out.println("Stream available bytes: " + availableBytes);
 
             songCurrentBytesMap.put(socketChannel, currentPositionInBytes + availableBytes);
 
-            buffer.put(bytes);
-            buffer.flip();
-            socketChannel.write(buffer);
-
-            buffer.clear();
-
-            // reset song
-            if (r == -1) {
-                songCurrentBytesMap.put(socketChannel, 0L);
-                streamingClients.remove(socketChannel);
-                userToSongMap.remove(socketChannel);
-                key.interestOps(SelectionKey.OP_READ);
-            }
+            streamMusicChunk(socketChannel, bytes);
         }
 
+    }
+
+    private void streamMusicChunk(SocketChannel socketChannel, byte[] bytes) throws IOException {
+        buffer.put(bytes);
+        buffer.flip();
+
+        try {
+            socketChannel.write(buffer);
+        } catch (IOException e) {
+            e.printStackTrace();
+            socketChannel.close();
+        }
+        buffer.clear();
+    }
+
+    private void clearStreamingSocketChannel(SocketChannel socketChannel) {
+        buffer.put(new byte[]{-1});
+        buffer.flip();
+
+        try {
+
+            socketChannel.write(buffer);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        buffer.clear();
+
+        songCurrentBytesMap.put(socketChannel, 0L);
+        userToSongMap.remove(socketChannel);
     }
 
     private void read(SelectionKey key) throws IOException {
@@ -237,8 +261,6 @@ public class SpotifyServer implements AutoCloseable {
             socketChannel.write(buffer);
 
             buffer.clear();
-
-            streamingClients.add(socketChannel);
 
             userToSongMap.put(socketChannel, Integer.parseInt(userMessage.split("\\s+")[1]));
 
