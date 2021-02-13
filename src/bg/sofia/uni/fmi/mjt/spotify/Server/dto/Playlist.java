@@ -12,4 +12,12 @@ public class Playlist {
         this.playlistName = name;
         this.playlistSongs = playlistSongs;
     }
+
+    @Override
+    public String toString() {
+        return "Playlist{" +
+               "playlistName='" + playlistName + '\'' +
+               ", playlistSongs=" + playlistSongs +
+               '}';
+    }
 }

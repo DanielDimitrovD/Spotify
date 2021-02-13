@@ -1,6 +1,7 @@
 package bg.sofia.uni.fmi.mjt.spotify.Server;
 
 import bg.sofia.uni.fmi.mjt.spotify.Server.serverComponents.SpotifyStreamer;
+import bg.sofia.uni.fmi.mjt.spotify.serverException.ServerStartupException;
 
 import javax.sound.sampled.UnsupportedAudioFileException;
 import java.io.IOException;
@@ -11,6 +12,7 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Iterator;
 import java.util.Set;
@@ -29,19 +31,17 @@ public class SpotifyServer implements AutoCloseable {
     private Selector selector;
     private ByteBuffer buffer;
 
-    private Path credentialsFile;
-    private String musicFolderURL;
-
     private SpotifyStreamer spotifyStreamer;
 
     public SpotifyServer(int port, Path credentialsFile, Path playlistFile, String musicFolderURL) {
+
+        System.out.println("Spotify server constructor :" + playlistFile);
+
         this.port = port;
-        this.credentialsFile = credentialsFile;
-        this.musicFolderURL = musicFolderURL;
 
         this.spotifyStreamer = new SpotifyStreamer(musicFolderURL);
 
-        this.commandInterpreter = new SpotifyCommandInterpreter(this.credentialsFile, playlistFile);
+        this.commandInterpreter = new SpotifyCommandInterpreter(credentialsFile, playlistFile);
 
         initialServerConfiguration();
 
@@ -60,6 +60,7 @@ public class SpotifyServer implements AutoCloseable {
 
         } catch (Exception e) {
             e.printStackTrace();
+            throw new ServerStartupException("Could not initialize server with these arguments. Please validate arguments.");
         }
     }
 
@@ -175,9 +176,7 @@ public class SpotifyServer implements AutoCloseable {
         int r = 0;
 
         try {
-
             r = socketChannel.read(buffer);
-
         } catch (SocketException e) {
             socketChannel.close();
         }

@@ -21,9 +21,39 @@ public class SpotifyCommandInterpreter {
 
     private final Path playlistFile;
 
+    private Map<String, List<Playlist>> userPlaylistMap;
+
     public SpotifyCommandInterpreter(Path credentialsFile, Path playlistFile) {
         this.spotifyClientRepository = new SpotifyClientRepository(credentialsFile);
         this.playlistFile = playlistFile;
+
+        initializeUserPlaylist();
+
+        System.out.println("Spotify Command Interpreter constructor : " + playlistFile);
+
+    }
+
+    private void initializeUserPlaylist() {
+
+        System.out.println("Initialize User Playlist method:" + playlistFile);
+
+        try {
+
+            String json = Files.readString(playlistFile);
+
+            final Type token = new TypeToken<Map<String, List<Playlist>>>() {
+            }.getType();
+
+            final Gson gson = new Gson();
+
+            userPlaylistMap = gson.fromJson(json, token);
+
+            System.out.println("User Playlist Map: " + userPlaylistMap.toString());
+
+        } catch (IOException e) {
+            //TODO add concrete exception
+            e.printStackTrace();
+        }
     }
 
     public byte[] interpretCommand(String userMessage, SocketChannel userSocketChannel) {
@@ -152,7 +182,7 @@ public class SpotifyCommandInterpreter {
         String toJson = gson.toJson(playlistMap, token);
 
         try {
-            Files.writeString(playlistFile, toJson, StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE);
+            Files.writeString(playlistFile, toJson, StandardOpenOption.CREATE, StandardOpenOption.WRITE);
 
             return "Playlist successfully created".getBytes(StandardCharsets.UTF_8);
         } catch (IOException e) {
