@@ -15,10 +15,7 @@ public class Playlist {
 
     @Override
     public String toString() {
-        return "Playlist{" +
-               "playlistName='" + playlistName + '\'' +
-               ", playlistSongs=" + playlistSongs +
-               '}';
+        return String.format("Playlist name: %s %n Songs: %s %n", playlistName, playlistSongs);
     }
 
     public String getPlaylistName() {
