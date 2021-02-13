@@ -230,10 +230,7 @@ public class SpotifyServer implements AutoCloseable {
 
             socketChannel.write(buffer);
 
-        }
-
-
-        else {
+        } else {
 
             byte[] serverReply = commandInterpreter.interpretCommand(userMessage, socketChannel);
 

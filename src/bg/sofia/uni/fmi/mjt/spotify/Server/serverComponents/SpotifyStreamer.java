@@ -134,6 +134,10 @@ public class SpotifyStreamer {
         return new ArrayList<>(songsMap.values());
     }
 
+    public boolean containsSong(String song) {
+        return songsMap.values().contains(song);
+    }
+
     private void clearStreamingSocketChannel(SocketChannel socketChannel) {
         songCurrentBytesMap.put(socketChannel, 0L);
         userToSongMap.remove(socketChannel);
