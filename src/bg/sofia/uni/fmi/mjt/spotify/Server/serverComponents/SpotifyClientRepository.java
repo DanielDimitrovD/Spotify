@@ -20,8 +20,6 @@ public class SpotifyClientRepository {
     private final Gson gson = new Gson();
 
     private final Path credentialsFile;
-
-
     private final Type mapType = new TypeToken<Map<String, String>>() {
     }.getType();
 
@@ -108,4 +106,7 @@ public class SpotifyClientRepository {
         return loggedUsers.get(userChannel);
     }
 
+    public boolean isLoggedIn(SocketChannel userChannel) {
+        return loggedUsers.containsKey(userChannel);
+    }
 }

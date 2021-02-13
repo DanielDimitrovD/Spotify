@@ -13,6 +13,7 @@ import java.io.ObjectOutputStream;
 import java.nio.channels.SocketChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -127,6 +128,10 @@ public class SpotifyStreamer {
 
             return bytes;
         }
+    }
+
+    public List<String> listSongs() {
+        return new ArrayList<>(songsMap.values());
     }
 
     private void clearStreamingSocketChannel(SocketChannel socketChannel) {

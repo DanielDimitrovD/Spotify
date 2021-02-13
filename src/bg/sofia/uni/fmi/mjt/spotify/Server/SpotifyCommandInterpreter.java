@@ -8,6 +8,7 @@ import com.google.gson.reflect.TypeToken;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.net.Socket;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -17,10 +18,12 @@ import java.util.*;
 
 public class SpotifyCommandInterpreter {
 
+    private final static String NO_PERMISSION_MESSAGE = "Please login in the system to use this command!";
     private final SpotifyClientRepository spotifyClientRepository;
-
     private final Path playlistFile;
-
+    private final Type token = new TypeToken<Map<String, List<Playlist>>>() {
+    }.getType();
+    private final Gson gson = new Gson();
     private Map<String, List<Playlist>> userPlaylistMap;
 
     public SpotifyCommandInterpreter(Path credentialsFile, Path playlistFile) {
@@ -30,7 +33,6 @@ public class SpotifyCommandInterpreter {
         initializeUserPlaylist();
 
         System.out.println("Spotify Command Interpreter constructor : " + playlistFile);
-
     }
 
     private void initializeUserPlaylist() {
@@ -38,17 +40,15 @@ public class SpotifyCommandInterpreter {
         System.out.println("Initialize User Playlist method:" + playlistFile);
 
         try {
-
             String json = Files.readString(playlistFile);
 
-            final Type token = new TypeToken<Map<String, List<Playlist>>>() {
-            }.getType();
+            if (json.isEmpty()) {
+                userPlaylistMap = new HashMap<>();
+            } else {
+                userPlaylistMap = gson.fromJson(json, token);
+            }
 
-            final Gson gson = new Gson();
-
-            userPlaylistMap = gson.fromJson(json, token);
-
-            System.out.println("User Playlist Map: " + userPlaylistMap.toString());
+//            System.out.println("User Playlist Map: " + userPlaylistMap.toString());
 
         } catch (IOException e) {
             //TODO add concrete exception
@@ -80,7 +80,7 @@ public class SpotifyCommandInterpreter {
             case REGISTER -> reply = register(tokens);
             case LOGIN -> reply = login(tokens, userSocketChannel);
             case DISCONNECT -> reply = disconnect(userSocketChannel);
-//            case SEARCH -> reply = search();
+            case SEARCH -> reply = search(tokens, userSocketChannel);
 //            case TOP -> reply = top();
             case CREATE_PLAYLIST -> reply = createPlaylist(tokens, userSocketChannel);
 //            case ADD_SONG_TO -> reply = addSongTo();
@@ -159,31 +159,38 @@ public class SpotifyCommandInterpreter {
         return null;
     }
 
+    private boolean authenticateUser(SocketChannel userChannel) {
+        return spotifyClientRepository.isLoggedIn(userChannel);
+    }
+
     private byte[] createPlaylist(String[] tokens, SocketChannel userSocketChannel) {
 
-        final Type token = new TypeToken<Map<String, List<Playlist>>>() {
-        }.getType();
-
-        final Gson gson = new Gson();
+        if (!authenticateUser(userSocketChannel)) {
+            return NO_PERMISSION_MESSAGE.getBytes(StandardCharsets.UTF_8);
+        }
 
         String email = spotifyClientRepository.getEmail(userSocketChannel);
-
         final int PLAYLIST_COMMAND_NAME_INDEX = 1;
-
         String playlistName = tokens[PLAYLIST_COMMAND_NAME_INDEX];
 
-        final Map<String, List<Playlist>> playlistMap = new HashMap<>();
+        userPlaylistMap.putIfAbsent(email, new ArrayList<>());
 
-        final List<Playlist> userPlaylist = new ArrayList<>();
-        userPlaylist.add(new Playlist(playlistName, new ArrayList<>()));
+        if (userPlaylistMap.get(email).stream().anyMatch(p -> p.getPlaylistName().equals(playlistName))) {
+            return "Playlist already exists".getBytes(StandardCharsets.UTF_8);
+        } else {
 
-        playlistMap.put(email, userPlaylist);
+            Playlist newPlaylist = new Playlist(playlistName, new ArrayList<>());
 
-        String toJson = gson.toJson(playlistMap, token);
+            List<Playlist> userPlaylists = userPlaylistMap.get(email);
+            userPlaylists.add(newPlaylist);
+
+            userPlaylistMap.put(email, userPlaylists);
+        }
+
+        String toJson = gson.toJson(userPlaylistMap, token);
 
         try {
             Files.writeString(playlistFile, toJson, StandardOpenOption.CREATE, StandardOpenOption.WRITE);
-
             return "Playlist successfully created".getBytes(StandardCharsets.UTF_8);
         } catch (IOException e) {
             e.printStackTrace();
@@ -195,7 +202,14 @@ public class SpotifyCommandInterpreter {
         return null;
     }
 
-    private String search() {
+    private byte[] search(String[] tokens, SocketChannel userSocketChannel) {
+
+        if (!authenticateUser(userSocketChannel)) {
+            return NO_PERMISSION_MESSAGE.getBytes(StandardCharsets.UTF_8);
+        }
+
+
+
         return null;
     }
 

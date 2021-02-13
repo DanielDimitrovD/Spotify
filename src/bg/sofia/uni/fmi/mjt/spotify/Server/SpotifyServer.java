@@ -12,10 +12,13 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class SpotifyServer implements AutoCloseable {
 
@@ -215,7 +218,23 @@ public class SpotifyServer implements AutoCloseable {
             // preregister key
             key.interestOps(SelectionKey.OP_WRITE);
 
-        } else {
+        } else if (userMessage.startsWith("search")) {
+
+            List<String> songs = spotifyStreamer.listSongs();
+
+            String songsString = songs.stream().collect(Collectors.joining(System.lineSeparator()));
+
+            buffer.clear();
+            buffer.put(songsString.getBytes(StandardCharsets.UTF_8));
+
+            buffer.flip();
+
+            socketChannel.write(buffer);
+
+        }
+
+
+        else {
 
             byte[] serverReply = commandInterpreter.interpretCommand(userMessage, socketChannel);
 

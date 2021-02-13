@@ -20,4 +20,12 @@ public class Playlist {
                ", playlistSongs=" + playlistSongs +
                '}';
     }
+
+    public String getPlaylistName() {
+        return playlistName;
+    }
+
+    public List<String> getPlaylistSongs() {
+        return playlistSongs;
+    }
 }

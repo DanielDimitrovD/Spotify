@@ -26,7 +26,7 @@ public class SpotifyClient {
         spotifyClient.startClient();
     }
 
-    private void printMenu() {
+    private void printSongs() {
         System.out.println(String.join(System.lineSeparator(),
                 List.of(
                         "1. Ice Cream - Захир (HD)%n",
@@ -53,10 +53,7 @@ public class SpotifyClient {
 
             while (true) {
 
-                System.out.println("=>");
-
-                printMenu();
-
+                System.out.println(" =>");
                 //    System.out.println("Enter message");
                 String message = String.format("%s%n", scanner.nextLine());
                 //    System.out.println("Sending message <" + message + "> to the server...");
@@ -77,10 +74,6 @@ public class SpotifyClient {
                 if (message.startsWith("play")) {
 
                     AudioFormatDTO dto = bytesToObject(byteArray);
-
-//                    System.out.printf("%s %f %d %d %d %f %b", dto.getEncoding(), dto.getSampleRate(),
-//                            dto.getSampleSizeInBits(), dto.getChannels(), dto.getFrameSize(),
-//                            dto.getFrameRate(), dto.isBigEndian());
 
                     AudioFormat format = new AudioFormat(new AudioFormat.Encoding(dto.getEncoding()), dto.getSampleRate(),
                             dto.getSampleSizeInBits(), dto.getChannels(), dto.getFrameSize(),
