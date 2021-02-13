@@ -51,7 +51,7 @@ public class SpotifyCommandExecutor {
                 case SEARCH -> reply = search(tokens, userSocketChannel);
                 //            case TOP -> reply = top();
                 case CREATE_PLAYLIST -> reply = createPlaylist(email, tokens);
-                case ADD_SONG_TO -> reply = addSongToPlaylist(tokens, userSocketChannel);
+                case ADD_SONG_TO -> reply = addSongToPlaylist(email, tokens);
                 case SHOW_PLAYLIST -> reply = showPlaylist(email, tokens);
                 //           case PLAY_SONG -> reply = playSong(userSocketChannel);
                 //            case STOP -> reply = stop();
@@ -70,46 +70,8 @@ public class SpotifyCommandExecutor {
         return reply;
     }
 
-    private byte[] addSongToPlaylist(String[] tokens, SocketChannel userSocketChannel) {
-
-        return null;
-//        if (!authenticateUser(userSocketChannel)) {
-//            return NO_PERMISSION_MESSAGE.getBytes(StandardCharsets.UTF_8);
-//        }
-//
-//
-//        final int NAME_OF_PLAYLIST_INDEX = 1;
-//        final int NAME_OF_SONG_INDEX = 2;
-//
-//        final int ADD_SONG_TO_PLAYLIST_PARAMETERS = 3;
-//
-//        if (tokens.length != ADD_SONG_TO_PLAYLIST_PARAMETERS) {
-//            return "command format : add-song-to <name_of_the_playlist> <song>".getBytes(StandardCharsets.UTF_8);
-//        }
-//
-//        String email = spotifyClientRepository.getEmail(userSocketChannel);
-//        String playlistName = tokens[NAME_OF_PLAYLIST_INDEX];
-//        String song = tokens[NAME_OF_SONG_INDEX];
-//
-//        userPlaylistMap.putIfAbsent(email, new HashMap<>());
-//
-//        if (!userPlaylistMap.get(email).containsKey(playlistName)) {
-//            return String.format("playlist %s does not exists. Please create %s first then add songs to it.",
-//                    playlistName).getBytes(StandardCharsets.UTF_8);
-//        }
-//
-//        Map<String, Playlist> userPlaylists = userPlaylistMap.get(email);
-//
-//        Playlist targetPlaylist = userPlaylists.get(playlistName);
-//        targetPlaylist.addSong(song);
-//
-//        userPlaylists.put(playlistName, targetPlaylist);
-//        userPlaylistMap.put(email, userPlaylists);
-//
-//        //TODO need to add validation for songs in Spotify
-//
-//        return String.format("Song %s added successfully to playlist %s%n", song, playlistName)
-//                .getBytes(StandardCharsets.UTF_8);
+    private byte[] addSongToPlaylist(String email, String[] tokens) {
+        return spotifyPlaylistRepository.addSongToPlaylist(email, tokens);
     }
 
     private byte[] showPlaylist(String email, String[] tokens) {

@@ -11,6 +11,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -51,6 +52,68 @@ public class SpotifyPlaylistRepository {
             }
         }
     }
+
+    public byte[] addSongToPlaylist(String email, String[] tokens) {
+
+        final int NAME_OF_PLAYLIST_INDEX = 1;
+        final int NAME_OF_SONG_INDEX = 2;
+
+        final int ADD_SONG_TO_PLAYLIST_PARAMETERS = 3;
+
+        if (tokens.length != ADD_SONG_TO_PLAYLIST_PARAMETERS) {
+            return "command format : add-song-to <name_of_the_playlist> <song>".getBytes(StandardCharsets.UTF_8);
+        }
+
+        if (!validateArguments(tokens)) {
+            throw new IllegalArgumentException("parameter in method login is null");
+        }
+
+        String playlistName = tokens[NAME_OF_PLAYLIST_INDEX];
+        String song = tokens[NAME_OF_SONG_INDEX];
+
+        userPlaylistMap.putIfAbsent(email, new HashMap<>());
+
+        if (!userPlaylistMap.get(email).containsKey(playlistName)) {
+            return String.format("playlist %s does not exists. Please create %s first then add songs.%n",
+                    playlistName).getBytes(StandardCharsets.UTF_8);
+        }
+
+        if (userPlaylistMap.get(email).get(playlistName).getPlaylistSongs()
+                .stream().anyMatch(p -> p.equals(song))) {
+            return String.format("Playlist %s already has song %s.%n", playlistName, song)
+                    .getBytes(StandardCharsets.UTF_8);
+        }
+
+        if (!SpotifyStreamer.containsSong(song)) {
+            return String.format("Song %s does not exist.%n", song)
+                    .getBytes(StandardCharsets.UTF_8);
+        }
+
+
+        Map<String, Playlist> userPlaylists = userPlaylistMap.get(email);
+
+        Playlist targetPlaylist = userPlaylists.get(playlistName);
+        targetPlaylist.addSong(song);
+
+        userPlaylists.put(playlistName, targetPlaylist);
+        userPlaylistMap.put(email, userPlaylists);
+
+        writeToPlaylist();
+
+        return String.format("Song %s added successfully to playlist %s%n", song, playlistName)
+                .getBytes(StandardCharsets.UTF_8);
+    }
+
+    private void writeToPlaylist() {
+        String toJson = gson.toJson(userPlaylistMap, token);
+        try {
+            Files.writeString(playlistFile, toJson, StandardOpenOption.CREATE, StandardOpenOption.WRITE);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
 
     public byte[] createPlaylist(String email, String[] tokens) {
 
@@ -96,5 +159,9 @@ public class SpotifyPlaylistRepository {
         }
 
         return userPlaylistMap.get(email).get(playlistName).toString().getBytes(StandardCharsets.UTF_8);
+    }
+
+    private boolean validateArguments(String... arguments) {
+        return Arrays.stream(arguments).noneMatch(e -> e == null);
     }
 }

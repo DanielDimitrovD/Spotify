@@ -23,7 +23,7 @@ import java.util.stream.Stream;
 public class SpotifyStreamer {
 
     private static final int BUFFER_SIZE = 16_384;
-    private String musicFolderURL;
+    private static String musicFolderURL;
     private Map<SocketChannel, Long> songCurrentBytesMap = new HashMap<>();
     private Map<SocketChannel, Integer> userToSongMap = new HashMap<>();
     private Map<Integer, String> songsMap = new HashMap<>();
@@ -33,13 +33,25 @@ public class SpotifyStreamer {
         initializeSongMap();
     }
 
+    public static boolean containsSong(String song) {
+        try {
+            Stream<Path> songs = Files.walk(Path.of(musicFolderURL));
+
+            List<String> songsNames = songs.map(s -> s.getFileName().toString().split(".wav")[0])
+                    .collect(Collectors.toList());
+
+            return songsNames.contains(song);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
     private void initializeSongMap() {
         try {
             int i = 1;
-            Stream<Path> songs = Files.walk(Path.of(musicFolderURL));
 
-            List<String> songsNames = songs.map(s -> s.getFileName().toString())
-                    .collect(Collectors.toList());
+            List<String> songsNames = getSongs();
 
             for (String song : songsNames) {
                 songsMap.put(i++, song);
@@ -47,6 +59,22 @@ public class SpotifyStreamer {
         } catch (Exception e) {
             // TODO add exception
             throw new UnsupportedOperationException();
+        }
+    }
+
+    private List<String> getSongs() {
+        try {
+            Stream<Path> songs = Files.walk(Path.of(musicFolderURL));
+
+            List<String> songsNames = songs.map(s -> s.getFileName().toString().split(".wav")[0])
+                    .collect(Collectors.toList());
+
+            return songsNames;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            //TODO add exception
+            return null;
         }
     }
 
@@ -133,10 +161,6 @@ public class SpotifyStreamer {
 
     public List<String> listSongs() {
         return new ArrayList<>(songsMap.values());
-    }
-
-    public boolean containsSong(String song) {
-        return songsMap.values().contains(song);
     }
 
     private void clearStreamingSocketChannel(SocketChannel socketChannel) {
