@@ -22,10 +22,10 @@ public class SpotifyCommandInterpreter {
 
 
     private final Path playlistFile;
-    private final Type token = new TypeToken<Map<String, List<Playlist>>>() {
+    private final Type token = new TypeToken<Map<String, Map<String, Playlist>>>() {
     }.getType();
     private final Gson gson = new Gson();
-    private Map<String, List<Playlist>> userPlaylistMap;
+    private Map<String, Map<String, Playlist>> userPlaylistMap;
 
     public SpotifyCommandInterpreter(Path credentialsFile, Path playlistFile) {
         this.spotifyClientRepository = new SpotifyClientRepository(credentialsFile);
@@ -52,8 +52,16 @@ public class SpotifyCommandInterpreter {
 //            System.out.println("User Playlist Map: " + userPlaylistMap.toString());
 
         } catch (IOException e) {
-            //TODO add concrete exception
-            e.printStackTrace();
+//            //TODO add concrete exception
+//            e.printStackTrace();
+
+            try {
+                userPlaylistMap = new HashMap<>();
+                Files.createFile(playlistFile);
+
+            } catch (Exception e1) {
+                e1.printStackTrace();
+            }
         }
     }
 
@@ -84,7 +92,7 @@ public class SpotifyCommandInterpreter {
             case SEARCH -> reply = search(tokens, userSocketChannel);
 //            case TOP -> reply = top();
             case CREATE_PLAYLIST -> reply = createPlaylist(tokens, userSocketChannel);
-//            case ADD_SONG_TO -> reply = addSongTo();
+            case ADD_SONG_TO -> reply = addSongToPlaylist(tokens, userSocketChannel);
             case SHOW_PLAYLIST -> reply = showPlaylist(tokens, userSocketChannel);
             //           case PLAY_SONG -> reply = playSong(userSocketChannel);
 //            case STOP -> reply = stop();
@@ -92,6 +100,28 @@ public class SpotifyCommandInterpreter {
         }
 
         return reply;
+    }
+
+    private byte[] addSongToPlaylist(String[] tokens, SocketChannel userSocketChannel) {
+
+        if (!authenticateUser(userSocketChannel)) {
+            return NO_PERMISSION_MESSAGE.getBytes(StandardCharsets.UTF_8);
+        }
+
+        final int NAME_OF_PLAYLIST_INDEX = 1;
+        final int NAME_OF_SONG_INDEX = 2;
+
+        final int ADD_SONG_TO_PLAYLIST_PARAMETERS = 3;
+
+        if (tokens.length != ADD_SONG_TO_PLAYLIST_PARAMETERS) {
+            return "command format : add-song-to <name_of_the_playlist> <song>".getBytes(StandardCharsets.UTF_8);
+        }
+
+        String email = spotifyClientRepository.getEmail(userSocketChannel);
+        String playlist = tokens[NAME_OF_PLAYLIST_INDEX];
+        String song = tokens[NAME_OF_SONG_INDEX];
+
+        return null;
     }
 
     private byte[] showPlaylist(String[] tokens, SocketChannel userSocketChannel) {
@@ -106,18 +136,14 @@ public class SpotifyCommandInterpreter {
 
         String playlistName = tokens[SHOW_PLAYLIST_PLAYLIST_NAME_INDEX];
 
-        userPlaylistMap.putIfAbsent(email, new ArrayList<>());
+        userPlaylistMap.putIfAbsent(email, new HashMap<>());
 
-        if (userPlaylistMap.get(email).stream().noneMatch(p -> p.getPlaylistName().equals(playlistName))) {
-            return String.format("No such playlist%n").getBytes(StandardCharsets.UTF_8);
+        if (!userPlaylistMap.get(email).containsKey(playlistName)) {
+            return String.format("Playlist %s does not exist. Please create it first%n", playlistName)
+                    .getBytes(StandardCharsets.UTF_8);
         }
 
-        Optional<Playlist> playlist = userPlaylistMap.get(email)
-                .stream()
-                .filter(p -> p.getPlaylistName().equals(playlistName))
-                .findFirst();
-
-        return playlist.get().toString().getBytes(StandardCharsets.UTF_8);
+        return userPlaylistMap.get(email).get(playlistName).toString().getBytes(StandardCharsets.UTF_8);
     }
 
     private byte[] disconnect(SocketChannel userSocketChannel) {
@@ -127,10 +153,9 @@ public class SpotifyCommandInterpreter {
 
     private byte[] login(String[] tokens, SocketChannel userSocketChannel) {
 
-        final int LOGIN_COMMAND_PARAMETERS = 3;
-
         final int LOGIN_COMMAND_USERNAME_INDEX = 1;
         final int LOGIN_COMMAND_PASSWORD_INDEX = 2;
+        final int LOGIN_COMMAND_PARAMETERS = 3;
 
         if (tokens.length != LOGIN_COMMAND_PARAMETERS) {
             return String.format("Wrong number of arguments for login command%n").getBytes(StandardCharsets.UTF_8);
@@ -177,10 +202,6 @@ public class SpotifyCommandInterpreter {
     }
 
 
-    private String addSongTo() {
-        return null;
-    }
-
     private boolean authenticateUser(SocketChannel userChannel) {
         return spotifyClientRepository.isLoggedIn(userChannel);
     }
@@ -195,16 +216,16 @@ public class SpotifyCommandInterpreter {
         final int PLAYLIST_COMMAND_NAME_INDEX = 1;
         String playlistName = tokens[PLAYLIST_COMMAND_NAME_INDEX];
 
-        userPlaylistMap.putIfAbsent(email, new ArrayList<>());
+        userPlaylistMap.putIfAbsent(email, new HashMap<>());
 
-        if (userPlaylistMap.get(email).stream().anyMatch(p -> p.getPlaylistName().equals(playlistName))) {
+        if (userPlaylistMap.get(email).containsKey(playlistName)) {
             return "Playlist already exists".getBytes(StandardCharsets.UTF_8);
         } else {
 
             Playlist newPlaylist = new Playlist(playlistName, new ArrayList<>());
 
-            List<Playlist> userPlaylists = userPlaylistMap.get(email);
-            userPlaylists.add(newPlaylist);
+            Map<String, Playlist> userPlaylists = userPlaylistMap.get(email);
+            userPlaylists.put(playlistName, newPlaylist);
 
             userPlaylistMap.put(email, userPlaylists);
         }

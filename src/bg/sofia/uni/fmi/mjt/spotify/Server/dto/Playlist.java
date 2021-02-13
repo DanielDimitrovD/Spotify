@@ -15,7 +15,7 @@ public class Playlist {
 
     @Override
     public String toString() {
-        return String.format("Playlist name: %s %n Songs: %s %n", playlistName, playlistSongs);
+        return String.format("Playlist name: %s %nSongs: %s %n", playlistName, playlistSongs);
     }
 
     public String getPlaylistName() {
@@ -25,4 +25,9 @@ public class Playlist {
     public List<String> getPlaylistSongs() {
         return playlistSongs;
     }
+
+    public void addSong(String song) {
+        playlistSongs.add(song);
+    }
+
 }
