@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class SpotifyPlaylistRepository {
 
@@ -60,7 +61,7 @@ public class SpotifyPlaylistRepository {
 
         final int ADD_SONG_TO_PLAYLIST_PARAMETERS = 3;
 
-        if (tokens.length != ADD_SONG_TO_PLAYLIST_PARAMETERS) {
+        if (tokens.length < ADD_SONG_TO_PLAYLIST_PARAMETERS) {
             return "command format : add-song-to <name_of_the_playlist> <song>".getBytes(StandardCharsets.UTF_8);
         }
 
@@ -69,7 +70,7 @@ public class SpotifyPlaylistRepository {
         }
 
         String playlistName = tokens[NAME_OF_PLAYLIST_INDEX];
-        String song = tokens[NAME_OF_SONG_INDEX];
+        String song = Arrays.stream(tokens).skip(2).collect(Collectors.joining(" "));
 
         userPlaylistMap.putIfAbsent(email, new HashMap<>());
 

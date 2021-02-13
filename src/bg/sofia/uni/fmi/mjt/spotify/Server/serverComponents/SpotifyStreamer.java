@@ -35,12 +35,9 @@ public class SpotifyStreamer {
 
     public static boolean containsSong(String song) {
         try {
-            Stream<Path> songs = Files.walk(Path.of(musicFolderURL));
-
-            List<String> songsNames = songs.map(s -> s.getFileName().toString().split(".wav")[0])
-                    .collect(Collectors.toList());
-
-            return songsNames.contains(song);
+            return Files.walk(Path.of(musicFolderURL))
+                    .map(s -> s.getFileName().toString().split(".wav")[0])
+                    .anyMatch(p -> p.equalsIgnoreCase(song));
         } catch (Exception e) {
             e.printStackTrace();
             return false;
