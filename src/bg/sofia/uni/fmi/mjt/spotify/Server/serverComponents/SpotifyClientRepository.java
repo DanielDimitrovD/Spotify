@@ -6,6 +6,7 @@ import com.google.gson.reflect.TypeToken;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.nio.channels.SocketChannel;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
@@ -53,22 +54,36 @@ public class SpotifyClientRepository {
         return Arrays.stream(arguments).noneMatch(e -> e == null);
     }
 
-    public boolean login(String email, String password, SocketChannel userChannel) {
+    public byte[] login(String[] tokens, SocketChannel userChannel) {
 
-        if (!validateArguments(email, password)) {
+        final int LOGIN_COMMAND_USERNAME_INDEX = 1;
+        final int LOGIN_COMMAND_PASSWORD_INDEX = 2;
+        final int LOGIN_COMMAND_PARAMETERS = 3;
+
+        if (tokens.length != LOGIN_COMMAND_PARAMETERS) {
+            return String.format("Wrong number of arguments for login command%n" +
+                                 "login <email> <password>%n").getBytes(StandardCharsets.UTF_8);
+        }
+
+        if (!validateArguments(tokens)) {
             throw new IllegalArgumentException("parameter in method login is null");
         }
 
+        String email = tokens[LOGIN_COMMAND_USERNAME_INDEX];
+        String password = tokens[LOGIN_COMMAND_PASSWORD_INDEX];
+
+
         if (!clientCredentials.containsKey(email)) {
-            return false;
+            return String.format("Username %s does not exist.%n", email).getBytes(StandardCharsets.UTF_8);
         }
 
-        if (clientCredentials.get(email).equals(password)) {
-            loggedUsers.put(userChannel, email);
-            return true;
+        if (!clientCredentials.get(email).equals(password)) {
+            return String.format("Wrong password for %s%n", email).getBytes(StandardCharsets.UTF_8);
         }
 
-        return false;
+        loggedUsers.put(userChannel, email);
+
+        return String.format("%s logged in successfully%n", email).getBytes(StandardCharsets.UTF_8);
     }
 
     public void disconnect(SocketChannel userChannel) {
@@ -85,21 +100,34 @@ public class SpotifyClientRepository {
         }
     }
 
-    public boolean register(String email, String password) {
+    public byte[] register(String[] tokens) {
 
-        if (!validateArguments(email, password)) {
+        final int REGISTER_COMMAND_USERNAME_INDEX = 1;
+        final int REGISTER_COMMAND_PASSWORD_INDEX = 2;
+        final int REGISTER_COMMAND_PARAMETERS = 3;
+
+        if (!validateArguments(tokens)) {
             throw new IllegalArgumentException("parameter in method register is null");
         }
 
+        if (tokens.length != REGISTER_COMMAND_PARAMETERS) {
+            return String.format("Wrong number of arguments for register command%nregister <email> <password>%n")
+                    .getBytes(StandardCharsets.UTF_8);
+        }
+
+        String email = tokens[REGISTER_COMMAND_USERNAME_INDEX];
+        String password = tokens[REGISTER_COMMAND_PASSWORD_INDEX];
+
         if (clientCredentials.containsKey(email)) {
-            return false;
+            return String.format("Account with email %s already registered. Please try another email.%n", email)
+                    .getBytes(StandardCharsets.UTF_8);
         }
 
         clientCredentials.put(email, password);
-
         writeCredentialsToJson();
 
-        return true;
+        return String.format("Account with email %s already registered. Please try another email%n", email)
+                .getBytes(StandardCharsets.UTF_8);
     }
 
     public String getEmail(SocketChannel userChannel) {

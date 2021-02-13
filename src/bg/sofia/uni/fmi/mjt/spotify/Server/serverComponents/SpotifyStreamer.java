@@ -45,6 +45,7 @@ public class SpotifyStreamer {
                 songsMap.put(i++, song);
             }
         } catch (Exception e) {
+            // TODO add exception
             throw new UnsupportedOperationException();
         }
     }

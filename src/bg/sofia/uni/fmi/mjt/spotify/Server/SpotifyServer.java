@@ -27,7 +27,7 @@ public class SpotifyServer implements AutoCloseable {
     private final int port;
     private boolean runServer = true;
 
-    private SpotifyCommandInterpreter commandInterpreter;
+    private SpotifyCommandExecutor commandInterpreter;
 
     private ServerSocketChannel serverSocketChannel;
     private Selector selector;
@@ -43,7 +43,7 @@ public class SpotifyServer implements AutoCloseable {
 
         this.spotifyStreamer = new SpotifyStreamer(musicFolderURL);
 
-        this.commandInterpreter = new SpotifyCommandInterpreter(credentialsFile, playlistFile);
+        this.commandInterpreter = new SpotifyCommandExecutor(credentialsFile, playlistFile);
 
         initialServerConfiguration();
 

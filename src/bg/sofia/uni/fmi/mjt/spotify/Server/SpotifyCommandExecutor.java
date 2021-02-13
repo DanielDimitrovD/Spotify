@@ -10,14 +10,14 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Optional;
 
-public class SpotifyCommandInterpreter {
+public class SpotifyCommandExecutor {
 
     private final static String NO_PERMISSION_MESSAGE = "Please login in the system to use this command!";
     private final SpotifyClientRepository spotifyClientRepository;
     private final SpotifyPlaylistRepository spotifyPlaylistRepository;
 
 
-    public SpotifyCommandInterpreter(Path credentialsFile, Path playlistFile) {
+    public SpotifyCommandExecutor(Path credentialsFile, Path playlistFile) {
         this.spotifyClientRepository = new SpotifyClientRepository(credentialsFile);
         this.spotifyPlaylistRepository = new SpotifyPlaylistRepository(playlistFile);
 
@@ -122,48 +122,12 @@ public class SpotifyCommandInterpreter {
     }
 
     private byte[] login(String[] tokens, SocketChannel userSocketChannel) {
-
-        final int LOGIN_COMMAND_USERNAME_INDEX = 1;
-        final int LOGIN_COMMAND_PASSWORD_INDEX = 2;
-        final int LOGIN_COMMAND_PARAMETERS = 3;
-
-        if (tokens.length != LOGIN_COMMAND_PARAMETERS) {
-            return String.format("Wrong number of arguments for login command%n").getBytes(StandardCharsets.UTF_8);
-        }
-
-        String email = tokens[LOGIN_COMMAND_USERNAME_INDEX];
-        String password = tokens[LOGIN_COMMAND_PASSWORD_INDEX];
-
-        boolean success = spotifyClientRepository.login(email, password, userSocketChannel);
-
-        if (success) {
-            return String.format("Account with email %s logged in successfully%n", email).getBytes(StandardCharsets.UTF_8);
-        } else {
-            return String.format("Invalid login attempt from account %s%n", email).getBytes(StandardCharsets.UTF_8);
-        }
+        return spotifyClientRepository.login(tokens, userSocketChannel);
     }
 
 
     private byte[] register(String[] tokens) {
-
-        final int REGISTER_COMMAND_USERNAME_INDEX = 1;
-        final int REGISTER_COMMAND_PASSWORD_INDEX = 2;
-        final int REGISTER_COMMAND_PARAMETERS = 3;
-
-        if (tokens.length != REGISTER_COMMAND_PARAMETERS) {
-            return String.format("Wrong number of arguments for register command%n").getBytes(StandardCharsets.UTF_8);
-        }
-
-        String email = tokens[REGISTER_COMMAND_USERNAME_INDEX];
-        String password = tokens[REGISTER_COMMAND_PASSWORD_INDEX];
-
-        boolean success = spotifyClientRepository.register(email, password);
-
-        if (success) {
-            return String.format("Account with email %s successfully registered%n", email).getBytes(StandardCharsets.UTF_8);
-        } else {
-            return String.format("Account with email %s already registered. Please try another email%n", email).getBytes(StandardCharsets.UTF_8);
-        }
+        return spotifyClientRepository.register(tokens);
     }
 
 
