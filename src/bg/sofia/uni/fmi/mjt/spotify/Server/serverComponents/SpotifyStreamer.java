@@ -156,13 +156,13 @@ public class SpotifyStreamer {
 
             long currentPositionInBytes = songCurrentBytesMap.get(socketChannel);
 
-//            System.out.println("current position in bytes: " + currentPositionInBytes);
+            System.out.println("current position in bytes: " + currentPositionInBytes);
 
             byte[] bytes = new byte[BUFFER_SIZE];
 
             long skipped = stream.skip(currentPositionInBytes);
 
-//            System.out.println("skipped: " + skipped);
+            System.out.println("skipped: " + skipped);
 
             int r = stream.read(bytes);
 
@@ -175,7 +175,7 @@ public class SpotifyStreamer {
                 return new byte[]{-1};
             }
 
-//            System.out.println("Stream available bytes: " + availableBytes);
+            System.out.println("Stream available bytes: " + availableBytes);
 
             songCurrentBytesMap.put(socketChannel, currentPositionInBytes + availableBytes);
 
