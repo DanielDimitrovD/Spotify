@@ -57,7 +57,7 @@ public class SpotifyPlaylistRepository {
     public byte[] addSongToPlaylist(String email, String[] tokens) {
 
         final int NAME_OF_PLAYLIST_INDEX = 1;
-        final int NAME_OF_SONG_INDEX = 2;
+        final int NAME_OF_SONG_INDEX_START = 2;
 
         final int ADD_SONG_TO_PLAYLIST_PARAMETERS = 3;
 
@@ -70,7 +70,7 @@ public class SpotifyPlaylistRepository {
         }
 
         String playlistName = tokens[NAME_OF_PLAYLIST_INDEX];
-        String song = Arrays.stream(tokens).skip(2).collect(Collectors.joining(" "));
+        String song = Arrays.stream(tokens).skip(NAME_OF_SONG_INDEX_START).collect(Collectors.joining(" "));
 
         userPlaylistMap.putIfAbsent(email, new HashMap<>());
 
@@ -109,7 +109,6 @@ public class SpotifyPlaylistRepository {
         String toJson = gson.toJson(userPlaylistMap, token);
         try {
             Files.writeString(playlistFile, toJson, StandardOpenOption.CREATE, StandardOpenOption.WRITE);
-
         } catch (IOException e) {
             e.printStackTrace();
         }

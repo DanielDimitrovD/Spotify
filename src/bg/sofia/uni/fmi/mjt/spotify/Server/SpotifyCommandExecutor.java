@@ -3,12 +3,15 @@ package bg.sofia.uni.fmi.mjt.spotify.Server;
 import bg.sofia.uni.fmi.mjt.spotify.Server.enums.SpotifyCommands;
 import bg.sofia.uni.fmi.mjt.spotify.Server.serverComponents.SpotifyClientRepository;
 import bg.sofia.uni.fmi.mjt.spotify.Server.serverComponents.SpotifyPlaylistRepository;
+import bg.sofia.uni.fmi.mjt.spotify.Server.serverComponents.SpotifyStreamer;
 
 import java.nio.channels.SocketChannel;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class SpotifyCommandExecutor {
 
@@ -48,7 +51,7 @@ public class SpotifyCommandExecutor {
 
         if (spotifyClientRepository.isLoggedIn(userSocketChannel)) {
             switch (command.get()) {
-                case SEARCH -> reply = search(tokens, userSocketChannel);
+                case SEARCH -> reply = search(tokens);
                 //            case TOP -> reply = top();
                 case CREATE_PLAYLIST -> reply = createPlaylist(email, tokens);
                 case ADD_SONG_TO -> reply = addSongToPlaylist(email, tokens);
@@ -68,6 +71,21 @@ public class SpotifyCommandExecutor {
         }
 
         return reply;
+    }
+
+    private byte[] search(String[] tokens) {
+
+//        System.out.println("tokens join : " + Arrays.stream(tokens).collect(Collectors.joining(" ")));
+
+        List<String> searchSongs = SpotifyStreamer.searchSongs((tokens));
+
+        if (searchSongs.isEmpty()) {
+            return String.format("No songs containing %s found.%n", tokens.toString()).getBytes(StandardCharsets.UTF_8);
+        }
+
+        return searchSongs.stream()
+                .collect(Collectors.joining(System.lineSeparator()))
+                .getBytes(StandardCharsets.UTF_8);
     }
 
     private byte[] addSongToPlaylist(String email, String[] tokens) {
@@ -109,16 +127,5 @@ public class SpotifyCommandExecutor {
     private String top() {
         return null;
     }
-
-    private byte[] search(String[] tokens, SocketChannel userSocketChannel) {
-
-        if (!authenticateUser(userSocketChannel)) {
-            return NO_PERMISSION_MESSAGE.getBytes(StandardCharsets.UTF_8);
-        }
-
-
-        return null;
-    }
-
 
 }

@@ -13,10 +13,9 @@ import java.io.ObjectOutputStream;
 import java.nio.channels.SocketChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -43,6 +42,29 @@ public class SpotifyStreamer {
             return false;
         }
     }
+
+    public static List<String> searchSongs(String[] words) {
+
+        List<String> tokens = Arrays.stream(words)
+                .skip(1)
+                .map(String::toLowerCase)
+                .collect(Collectors.toList());
+
+        Function<Path, String> pathToString = s -> s.getFileName().toString().split(".wav")[0].toLowerCase();
+        Predicate<String> matchWordsToSong = p -> Arrays.asList(p.split("\\s+")).containsAll(tokens);
+
+        try {
+            return Files.walk(Path.of(musicFolderURL))
+                    .map(pathToString)
+                    .filter(matchWordsToSong)
+                    .collect(Collectors.toList());
+        } catch (Exception e) {
+            //TODO add exception
+            e.printStackTrace();
+            return null;
+        }
+    }
+
 
     private void initializeSongMap() {
         try {
