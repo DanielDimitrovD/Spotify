@@ -27,6 +27,9 @@ public class SpotifyStreamer {
     private Map<SocketChannel, Integer> userToSongMap = new HashMap<>();
     private Map<Integer, String> songsMap = new HashMap<>();
 
+    private Set<SocketChannel> streamingUsers = new HashSet<>();
+
+
     public SpotifyStreamer(String musicFolderURL) {
         this.musicFolderURL = musicFolderURL;
         initializeSongMap();
@@ -73,7 +76,7 @@ public class SpotifyStreamer {
             List<String> songsNames = getSongs();
 
             for (String song : songsNames) {
-                songsMap.put(i++, song);
+                songsMap.put(i++, song + ".wav");
             }
         } catch (Exception e) {
             // TODO add exception
@@ -99,6 +102,7 @@ public class SpotifyStreamer {
 
     public void setSongForUser(SocketChannel userChannel, int songIndex) {
         userToSongMap.put(userChannel, songIndex);
+        streamingUsers.add(userChannel);
     }
 
     public byte[] getAudioFormatHeaders(SocketChannel userSocketChannel) {
@@ -106,7 +110,7 @@ public class SpotifyStreamer {
         String songAbsolutePath = musicFolderURL + songsMap.get(userToSongMap.get(userSocketChannel));
 
         try {
-            System.out.println(songAbsolutePath);
+//            System.out.println(songAbsolutePath);
 
             AudioFormat format = AudioSystem.getAudioInputStream(new File(songAbsolutePath)).getFormat();
 
@@ -116,7 +120,7 @@ public class SpotifyStreamer {
                     format.getSampleSizeInBits(), format.getChannels(), format.getFrameSize(), format.getFrameRate(),
                     format.isBigEndian(), songSizeInBytes);
 
-            System.out.println(dto.toString());
+//            System.out.println(dto.toString());
 
             return objectToByteArray(dto);
         } catch (IOException | UnsupportedAudioFileException e) {
@@ -144,7 +148,7 @@ public class SpotifyStreamer {
     public byte[] readMusicChunk(SocketChannel socketChannel) throws IOException, UnsupportedAudioFileException {
         songCurrentBytesMap.putIfAbsent(socketChannel, 0L);
 
-        System.out.println();
+//        System.out.println();
 
         String songAbsolutePath = musicFolderURL + songsMap.get(userToSongMap.get(socketChannel));
 
@@ -152,13 +156,13 @@ public class SpotifyStreamer {
 
             long currentPositionInBytes = songCurrentBytesMap.get(socketChannel);
 
-            System.out.println("current position in bytes: " + currentPositionInBytes);
+//            System.out.println("current position in bytes: " + currentPositionInBytes);
 
             byte[] bytes = new byte[BUFFER_SIZE];
 
             long skipped = stream.skip(currentPositionInBytes);
 
-            System.out.println("skipped: " + skipped);
+//            System.out.println("skipped: " + skipped);
 
             int r = stream.read(bytes);
 
@@ -167,10 +171,11 @@ public class SpotifyStreamer {
             // reset song
             if (r == -1) {
                 clearStreamingSocketChannel(socketChannel);
+                streamingUsers.remove(socketChannel);
                 return new byte[]{-1};
             }
 
-            System.out.println("Stream available bytes: " + availableBytes);
+//            System.out.println("Stream available bytes: " + availableBytes);
 
             songCurrentBytesMap.put(socketChannel, currentPositionInBytes + availableBytes);
 
@@ -178,13 +183,14 @@ public class SpotifyStreamer {
         }
     }
 
-    public List<String> listSongs() {
-        return new ArrayList<>(songsMap.values());
-    }
-
     private void clearStreamingSocketChannel(SocketChannel socketChannel) {
         songCurrentBytesMap.put(socketChannel, 0L);
         userToSongMap.remove(socketChannel);
+        streamingUsers.remove(socketChannel);
+    }
+
+    public boolean isUserStreaming(SocketChannel userChannel) {
+        return streamingUsers.contains(userChannel);
     }
 
 }

@@ -117,7 +117,7 @@ public class SpotifyServer implements AutoCloseable {
 
     private void write(SelectionKey key) throws IOException, UnsupportedAudioFileException {
 
-        System.out.println("key is writable");
+//        System.out.println("key is writable");
 
         SocketChannel socketChannel = (SocketChannel) key.channel();
 
@@ -166,7 +166,7 @@ public class SpotifyServer implements AutoCloseable {
     }
 
     private void read(SelectionKey key) throws IOException {
-        System.out.println("key is readable");
+//        System.out.println("key is readable");
 
         SocketChannel socketChannel = (SocketChannel) key.channel();
 

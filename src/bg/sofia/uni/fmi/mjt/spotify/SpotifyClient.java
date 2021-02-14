@@ -12,6 +12,8 @@ import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 import java.util.List;
 import java.util.Scanner;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class SpotifyClient {
 
@@ -19,6 +21,7 @@ public class SpotifyClient {
     private static final String SERVER_HOST = "localhost";
     private static ByteBuffer buffer = ByteBuffer.allocateDirect(16_384);
 
+    private final ExecutorService executorService = Executors.newCachedThreadPool();
 
     public static void main(String[] args) {
         SpotifyClient spotifyClient = new SpotifyClient();
@@ -73,47 +76,102 @@ public class SpotifyClient {
 
                 if (message.startsWith("play")) {
 
-                    AudioFormatDTO dto = bytesToObject(byteArray);
+//                    AudioFormatDTO dto = bytesToObject(byteArray);
+//
+//                    AudioFormat format = new AudioFormat(new AudioFormat.Encoding(dto.getEncoding()), dto.getSampleRate(),
+//                            dto.getSampleSizeInBits(), dto.getChannels(), dto.getFrameSize(),
+//                            dto.getFrameRate(), dto.isBigEndian());
+//
+//                    System.out.println(dto.toString());
+//
+//                    DataLine.Info info = new DataLine.Info(SourceDataLine.class, format);
+//                    SourceDataLine dataLine = (SourceDataLine) AudioSystem.getLine(info);
+//
+//                    dataLine.open();
+//
+//                    dataLine.start();
+//
+//                    long receivedBytes = 0;
+//
+//                    int r;
+//
+//                    while (true) {
+//
+//                        buffer.clear();
+//
+//                        r = socketChannel.read(buffer);
+//                        buffer.flip();
+//
+//                        byte[] bytes = new byte[buffer.remaining()];
+//                        buffer.get(bytes);
+//
+//                        receivedBytes += bytes.length;
+//
+////                        System.out.println("received bytes:" + receivedBytes);
+//
+//
+//                        if (r == 1) {
+//                            dataLine.close();
+//                            break;
+//                        }
+//
+//                        dataLine.write(bytes, 0, bytes.length);
+                    //        }
 
-                    AudioFormat format = new AudioFormat(new AudioFormat.Encoding(dto.getEncoding()), dto.getSampleRate(),
-                            dto.getSampleSizeInBits(), dto.getChannels(), dto.getFrameSize(),
-                            dto.getFrameRate(), dto.isBigEndian());
 
-                    System.out.println(dto.toString());
+                    executorService.execute(() -> {
+                        AudioFormatDTO dto = bytesToObject(byteArray);
 
-                    DataLine.Info info = new DataLine.Info(SourceDataLine.class, format);
-                    SourceDataLine dataLine = (SourceDataLine) AudioSystem.getLine(info);
+                        AudioFormat format = new AudioFormat(new AudioFormat.Encoding(dto.getEncoding()), dto.getSampleRate(),
+                                dto.getSampleSizeInBits(), dto.getChannels(), dto.getFrameSize(),
+                                dto.getFrameRate(), dto.isBigEndian());
 
-                    dataLine.open();
+                        System.out.println(dto.toString());
 
-                    dataLine.start();
-
-                    long receivedBytes = 0;
-
-                    int r;
-
-                    while (true) {
-
-                        buffer.clear();
-
-                        r = socketChannel.read(buffer);
-                        buffer.flip();
-
-                        byte[] bytes = new byte[buffer.remaining()];
-                        buffer.get(bytes);
-
-                        receivedBytes += bytes.length;
-
-                        System.out.println("received bytes:" + receivedBytes);
-
-
-                        if (r == 1) {
-                            dataLine.close();
-                            break;
+                        DataLine.Info info = new DataLine.Info(SourceDataLine.class, format);
+                        SourceDataLine dataLine = null;
+                        try {
+                            dataLine = (SourceDataLine) AudioSystem.getLine(info);
+                            dataLine.open();
+                        } catch (LineUnavailableException e) {
+                            e.printStackTrace();
                         }
 
-                        dataLine.write(bytes, 0, bytes.length);
-                    }
+                        dataLine.start();
+
+                        long receivedBytes = 0;
+
+                        int r = 0;
+
+                        while (true) {
+
+                            buffer.clear();
+
+                            try {
+                                r = socketChannel.read(buffer);
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                                break;
+                            }
+                            buffer.flip();
+
+                            byte[] bytes = new byte[buffer.remaining()];
+                            buffer.get(bytes);
+
+                            receivedBytes += bytes.length;
+
+//                        System.out.println("received bytes:" + receivedBytes);
+
+
+                            if (r == 1) {
+                                dataLine.close();
+                                break;
+                            }
+
+                            dataLine.write(bytes, 0, bytes.length);
+                        }
+                    });
+
                 } else {
 
                     String reply = new String(byteArray, "UTF-8");
@@ -127,11 +185,12 @@ public class SpotifyClient {
 
 
             }
-        } catch (IOException | LineUnavailableException e) {
+        } catch (IOException e) {
             throw new ClientConnectionException("There is a problem with the network communication", e.getCause());
         }
 
     }
+
 
     private AudioFormatDTO bytesToObject(byte[] byteArray) {
         try (ByteArrayInputStream bis = new ByteArrayInputStream(byteArray);

@@ -74,9 +74,6 @@ public class SpotifyCommandExecutor {
     }
 
     private byte[] search(String[] tokens) {
-
-//        System.out.println("tokens join : " + Arrays.stream(tokens).collect(Collectors.joining(" ")));
-
         List<String> searchSongs = SpotifyStreamer.searchSongs((tokens));
 
         if (searchSongs.isEmpty()) {
