@@ -13,8 +13,11 @@ import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class SpotifyServer implements AutoCloseable {
 
@@ -195,9 +198,20 @@ public class SpotifyServer implements AutoCloseable {
 
         if (userMessage.startsWith("play")) {
 
-            int songIndex = Integer.parseInt(userMessage.split("\\s+")[1]);
+//            int songIndex = Integer.parseInt(userMessage.split("\\s+")[1]);
 
-            spotifyStreamer.setSongForUser(socketChannel, songIndex);
+            List<String> songNames = Arrays.stream(userMessage.split("\\s+"))
+                    .skip(1)
+                    .collect(Collectors.toList());
+
+            String[] songName = new String[userMessage.split("\\s+").length - 1];
+
+            int i = 0;
+            for (String s : songNames) {
+                songName[i++] = s;
+            }
+
+            spotifyStreamer.setSongForUser(socketChannel, songName);
 
             System.out.println("want to stream music. Sending music info to client");
 
