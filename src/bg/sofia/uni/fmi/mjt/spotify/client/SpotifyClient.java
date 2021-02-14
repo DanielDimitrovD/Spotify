@@ -1,4 +1,4 @@
-package bg.sofia.uni.fmi.mjt.spotify;
+package bg.sofia.uni.fmi.mjt.spotify.client;
 
 import bg.sofia.uni.fmi.mjt.spotify.ClientExceptions.ClientConnectionException;
 
