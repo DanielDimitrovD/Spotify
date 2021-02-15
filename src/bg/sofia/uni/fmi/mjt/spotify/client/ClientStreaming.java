@@ -22,18 +22,12 @@ public class ClientStreaming implements Runnable {
     private static final String SERVER_HOST = "localhost";
 
     private static int BUFFER_SIZE = 1_024;
-
     private static ByteBuffer buffer = ByteBuffer.allocateDirect(BUFFER_SIZE);
-
     private final String command;
-    private final String email;
-
 
     public ClientStreaming(String command, String email) {
-
         String[] tokens = command.split("\\s+");
 
-        this.email = email;
         this.command = String.format("%s %s %s", tokens[0], email, Arrays.stream(tokens)
                 .skip(1)
                 .collect(Collectors.joining(" ")));
@@ -59,6 +53,13 @@ public class ClientStreaming implements Runnable {
             byte[] byteArray = new byte[buffer.remaining()];
             buffer.get(byteArray);
 
+            String response = new String(byteArray, "UTF-8");
+
+            if (response.contains("No such song")) {
+                System.out.println(response);
+                return;
+            }
+
             AudioFormatDTO dto = bytesToObject(byteArray);
 
             AudioFormat format = new AudioFormat(new AudioFormat.Encoding(dto.getEncoding()), dto.getSampleRate(),
@@ -70,8 +71,8 @@ public class ClientStreaming implements Runnable {
             DataLine.Info info = new DataLine.Info(SourceDataLine.class, format);
             SourceDataLine dataLine = (SourceDataLine) AudioSystem.getLine(info);
 
-            dataLine.open();
 
+            dataLine.open();
             dataLine.start();
 
             long receivedBytes = 0;
@@ -86,6 +87,7 @@ public class ClientStreaming implements Runnable {
                     r = socketChannel.read(buffer);
                 } catch (Exception e) {
                     System.out.println("Hard reset");
+                    return;
                 }
 
                 if (r == 1) {

@@ -2,6 +2,7 @@ package bg.sofia.uni.fmi.mjt.spotify.Server;
 
 import bg.sofia.uni.fmi.mjt.spotify.Server.serverComponents.SpotifyStreamer;
 import bg.sofia.uni.fmi.mjt.spotify.Server.serverComponents.repositories.SpotifyClientRepository;
+import bg.sofia.uni.fmi.mjt.spotify.Server.serverComponents.repositories.SpotifySongRepository;
 import bg.sofia.uni.fmi.mjt.spotify.serverException.ServerStartupException;
 
 import javax.sound.sampled.UnsupportedAudioFileException;
@@ -16,6 +17,7 @@ import java.nio.channels.SocketChannel;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class SpotifyServer implements AutoCloseable {
 
@@ -233,26 +235,31 @@ public class SpotifyServer implements AutoCloseable {
                 songName[j++] = tokens[i];
             }
 
-            spotifyStreamer.setSongForUser(socketChannel, songName);
+            if (!SpotifySongRepository.containsSong(Arrays.stream(songName).collect(Collectors.joining(" ")))) {
+                writeToChannel("No such song in Spotify".getBytes(StandardCharsets.UTF_8), socketChannel);
+            } else {
 
-            System.out.println("want to stream music. Sending music info to client");
+                spotifyStreamer.setSongForUser(socketChannel, songName);
+                System.out.println("want to stream music. Sending music info to client");
+                byte[] bytes = spotifyStreamer.getAudioFormatHeaders(socketChannel);
 
-            byte[] bytes = spotifyStreamer.getAudioFormatHeaders(socketChannel);
+//            buffer.put(bytes);
+//            buffer.flip();
+//
+//            socketChannel.write(buffer);
+//
+//            buffer.clear();
 
-            buffer.put(bytes);
-            buffer.flip();
-
-            socketChannel.write(buffer);
-
-            buffer.clear();
-
-            // preregister key
-            key.interestOps(SelectionKey.OP_WRITE);
-            streamingUsersMap.put(email, socketChannel);
-
-            System.out.println("Streaming socket channel : " + socketChannel);
+                writeToChannel(bytes, socketChannel);
 
 
+                // preregister key
+                key.interestOps(SelectionKey.OP_WRITE);
+                streamingUsersMap.put(email, socketChannel);
+
+                System.out.println("Streaming socket channel : " + socketChannel);
+
+            }
         } else if (userMessage.startsWith("stop")) {
 
             String email = SpotifyClientRepository.getEmail(socketChannel);
@@ -269,18 +276,19 @@ public class SpotifyServer implements AutoCloseable {
         } else {
 
             byte[] serverReply = commandInterpreter.interpretCommand(userMessage, socketChannel);
-
-            buffer.put(serverReply);
-            buffer.flip();
-
-            socketChannel.write(buffer);
+            writeToChannel(serverReply, socketChannel);
+//            buffer.put(serverReply);
+//            buffer.flip();
+//
+//            socketChannel.write(buffer);
 
             System.out.println("Server replied to client command" + userMessage);
 
-            buffer.clear();
+//            buffer.clear();
         }
 
     }
+
 
     private void acceptConnection(SelectionKey key) {
 

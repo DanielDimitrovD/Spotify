@@ -22,102 +22,16 @@ public class SpotifyStreamer {
 
     private static final int BUFFER_SIZE = 1_024;
 
-//    private static String musicFolderURL;
-
-
     private Map<SocketChannel, Long> songCurrentBytesMap = new HashMap<>();
-
     private Set<SocketChannel> streamingUsers = new HashSet<>();
-
     private Map<SocketChannel, String> userSongMap = new HashMap<>();
-
-//    private Map<String, String> songMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-
-
-    private Map<String, Long> songSize = new HashMap<>();
-
     private SpotifyStatistics statistics = new SpotifyStatistics();
-
     private SpotifySongRepository songRepository;
 
     public SpotifyStreamer(String musicFolderURL) {
-//        this.musicFolderURL = musicFolderURL;
         songRepository = new SpotifySongRepository(musicFolderURL);
-//        initializeSongMap();
     }
 
-//    public static boolean containsSong(String song) {
-//        try {
-//            return Files.walk(Path.of(musicFolderURL))
-//                    .map(s -> s.getFileName().toString().split(".wav")[0])
-//                    .anyMatch(p -> p.equalsIgnoreCase(song));
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            return false;
-//        }
-//    }
-//
-//    public static List<String> searchSongs(String[] words) {
-//        List<String> tokens = Arrays.stream(words).collect(Collectors.toList());
-//
-//        Function<Path, String> pathToString = s -> s.getFileName().toString().split(".wav")[0];
-//        Predicate<String> matchWordsToSong = p -> {
-//            Set<String> s = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
-//            s.addAll(Arrays.asList(p.split("\\s+")));
-//            return s.containsAll(tokens);
-//        };
-//
-//        try {
-//            return Files.walk(Path.of(musicFolderURL))
-//                    .map(pathToString)
-//                    .filter(matchWordsToSong)
-//                    .collect(Collectors.toList());
-//        } catch (Exception e) {
-//            //TODO add exception
-//            e.printStackTrace();
-//            return null;
-//        }
-//    }
-
-
-//    private void initializeSongMap() {
-//        try {
-//            List<String> songsNames = getSongs();
-//
-//            for (String song : songsNames) {
-//                String songPath = String.format("%s%s.wav", musicFolderURL, song);
-//
-//                //TODO experimental
-//                songMap.put(song, songPath);
-//
-//                long songSizeInBytes = Files.size(Path.of(songPath));
-//
-//                songSize.put(songPath, songSizeInBytes);
-//            }
-//
-//            System.out.println("song size map :" + songSize.toString());
-//
-//        } catch (Exception e) {
-//            // TODO add exception
-//            throw new UnsupportedOperationException();
-//        }
-//    }
-
-//    private List<String> getSongs() {
-//        try {
-//            Stream<Path> songs = Files.walk(Path.of(musicFolderURL)).filter(p -> !Files.isDirectory(p));
-//
-//            List<String> songsNames = songs.map(s -> s.getFileName().toString().split(".wav")[0])
-//                    .collect(Collectors.toList());
-//
-//            return songsNames;
-//
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            //TODO add exception
-//            return null;
-//        }
-//    }
 
     public void setSongForUser(SocketChannel userChannel, String[] song) {
 
@@ -144,10 +58,7 @@ public class SpotifyStreamer {
 
     public byte[] getAudioFormatHeaders(SocketChannel userSocketChannel) {
 
-//        String songAbsolutePath = songMap.get(userSongMap.get(userSocketChannel));
-
         String userSongChoice = userSongMap.get(userSocketChannel);
-
         String songAbsolutePath = songRepository.getSongAbsolutePath(userSongChoice);
 
         if (songAbsolutePath == null) {

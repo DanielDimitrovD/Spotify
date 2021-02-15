@@ -85,10 +85,8 @@ public class SpotifySongRepository {
 
             Function<Path, String> songFileName = s -> s.getFileName().toString().split(".wav")[0];
 
-            List<String> songsNames = songs.map(songFileName)
+            return songs.map(songFileName)
                     .collect(Collectors.toList());
-
-            return songsNames;
         } catch (Exception e) {
             throw new SongRepositoryInitializationException("Could not initialize song repository");
         }
