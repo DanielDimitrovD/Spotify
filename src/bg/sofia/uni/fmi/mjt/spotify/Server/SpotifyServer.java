@@ -233,6 +233,7 @@ public class SpotifyServer implements AutoCloseable {
                 songName[j++] = tokens[i];
             }
 
+
             spotifyStreamer.setSongForUser(socketChannel, songName);
 
             System.out.println("want to stream music. Sending music info to client");

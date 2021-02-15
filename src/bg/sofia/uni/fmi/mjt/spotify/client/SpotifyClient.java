@@ -19,6 +19,9 @@ public class SpotifyClient {
 
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
+    private String email;
+    private boolean isStreaming = false;
+
     public static void main(String[] args) {
         SpotifyClient spotifyClient = new SpotifyClient();
         spotifyClient.startClient();
@@ -55,9 +58,17 @@ public class SpotifyClient {
                 String message = String.format("%s%n", scanner.nextLine());
 
                 if (message.startsWith("play")) {
-                    executorService.execute(new ClientStreaming(message, "test"));
-                } else {
 
+                    if (isStreaming) {
+                        System.out.println("Please stop current song first with command <stop>");
+                        continue;
+                    }
+
+                    executorService.execute(new ClientStreaming(message, email));
+                    isStreaming = true;
+                } else if (message.startsWith("stop")) {
+                    isStreaming = false;
+                } else {
                     buffer.clear();
                     buffer.put(message.getBytes());
                     buffer.flip();
@@ -73,6 +84,10 @@ public class SpotifyClient {
                     String reply = new String(byteArray, "UTF-8");
 
                     System.out.print(reply);
+
+                    if (reply.contains("logged in successfully")) {
+                        this.email = reply.split("\\s+")[0];
+                    }
 
                     if (reply.contains("disconnected")) {
                         return;

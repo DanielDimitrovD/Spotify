@@ -117,12 +117,6 @@ public class SpotifyCommandExecutor {
         return spotifyClientRepository.register(tokens);
     }
 
-//
-//    private byte[] stop() {
-//        return ;
-//    }
-
-
     private boolean authenticateUser(SocketChannel userChannel) {
         return spotifyClientRepository.isLoggedIn(userChannel);
     }

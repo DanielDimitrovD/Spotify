@@ -22,10 +22,9 @@ import java.util.stream.Stream;
 public class SpotifyStreamer {
 
     private static final int BUFFER_SIZE = 16_384;
+
     private static String musicFolderURL;
     private Map<SocketChannel, Long> songCurrentBytesMap = new HashMap<>();
-//    private Map<SocketChannel, Integer> userToSongMap = new HashMap<>();
-//    private Map<Integer, String> songsMap = new HashMap<>();
 
     private Set<SocketChannel> streamingUsers = new HashSet<>();
 
@@ -54,9 +53,6 @@ public class SpotifyStreamer {
     }
 
     public static List<String> searchSongs(String[] words) {
-
-//        List<String> tokens = Arrays.stream(words).skip(1).collect(Collectors.toList());
-
         List<String> tokens = Arrays.stream(words).collect(Collectors.toList());
 
         Function<Path, String> pathToString = s -> s.getFileName().toString().split(".wav")[0];
@@ -81,13 +77,9 @@ public class SpotifyStreamer {
 
     private void initializeSongMap() {
         try {
-            int i = 1;
-
             List<String> songsNames = getSongs();
 
             for (String song : songsNames) {
-//                songsMap.put(i++, song + ".wav");
-
                 String songPath = String.format("%s%s.wav", musicFolderURL, song);
 
                 //TODO experimental
@@ -229,8 +221,6 @@ public class SpotifyStreamer {
     private void clearStreamingSocketChannel(SocketChannel socketChannel) {
         songCurrentBytesMap.put(socketChannel, 0L);
         streamingUsers.remove(socketChannel);
-
-        //TODO expemimental
         userSongMap.remove(socketChannel);
     }
 
