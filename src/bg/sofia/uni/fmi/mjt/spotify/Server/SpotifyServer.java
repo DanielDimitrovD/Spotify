@@ -198,18 +198,7 @@ public class SpotifyServer implements AutoCloseable {
 
         if (userMessage.startsWith("play")) {
 
-//            int songIndex = Integer.parseInt(userMessage.split("\\s+")[1]);
-
-            List<String> songNames = Arrays.stream(userMessage.split("\\s+"))
-                    .skip(1)
-                    .collect(Collectors.toList());
-
-            String[] songName = new String[userMessage.split("\\s+").length - 1];
-
-            int i = 0;
-            for (String s : songNames) {
-                songName[i++] = s;
-            }
+            String[] songName = userMessage.split("\\s+");
 
             spotifyStreamer.setSongForUser(socketChannel, songName);
 

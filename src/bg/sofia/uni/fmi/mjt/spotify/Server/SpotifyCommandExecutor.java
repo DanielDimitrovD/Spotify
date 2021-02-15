@@ -79,6 +79,8 @@ public class SpotifyCommandExecutor {
     private byte[] search(String[] tokens) {
         List<String> searchSongs = SpotifyStreamer.searchSongs((tokens));
 
+        System.out.printf("Matched songs: %s", searchSongs.toString());
+
         if (searchSongs.isEmpty()) {
             return String.format("No songs containing %s found.%n", tokens.toString()).getBytes(StandardCharsets.UTF_8);
         }

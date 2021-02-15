@@ -55,8 +55,7 @@ public class SpotifyStreamer {
 
     public static List<String> searchSongs(String[] words) {
 
-        Set<String> tokens = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
-        tokens.addAll(Arrays.stream(words).skip(1).collect(Collectors.toList()));
+        List<String> tokens = Arrays.stream(words).skip(1).collect(Collectors.toList());
 
         Function<Path, String> pathToString = s -> s.getFileName().toString().split(".wav")[0];
         Predicate<String> matchWordsToSong = p -> {
@@ -123,6 +122,8 @@ public class SpotifyStreamer {
 
     public void setSongForUser(SocketChannel userChannel, String[] song) {
 
+        System.out.printf("Song parameters: %s", Arrays.deepToString(song));
+
         List<String> matchedSongs = searchSongs(song);
 
         if (matchedSongs.isEmpty()) {
@@ -132,22 +133,17 @@ public class SpotifyStreamer {
         System.out.println("Set song for user");
         System.out.println("Matched songs: " + matchedSongs.toString());
 
+        System.out.printf("Matched song:%s", matchedSongs.get(0));
+
         userSongMap.put(userChannel, matchedSongs.get(0));
-        //   userSongMap.put(userChannel, song);
     }
 
 
     public byte[] getAudioFormatHeaders(SocketChannel userSocketChannel) {
 
-        // TODO experimental
-
         String songAbsolutePath = songMap.get(userSongMap.get(userSocketChannel));
 
         System.out.println("Song path:" + songAbsolutePath);
-
-        System.out.println(songMap.toString());
-
-        System.out.println(userSongMap.toString());
 
         try {
             AudioFormat format = AudioSystem.getAudioInputStream(new File(songAbsolutePath)).getFormat();
@@ -190,7 +186,6 @@ public class SpotifyStreamer {
 
         String songName = songMap.get(userSong);
 
-
         System.out.println("user song name:" + songName);
 
         String songAbsolutePath = songName;
@@ -231,15 +226,10 @@ public class SpotifyStreamer {
 
     private void clearStreamingSocketChannel(SocketChannel socketChannel) {
         songCurrentBytesMap.put(socketChannel, 0L);
-//        userToSongMap.remove(socketChannel);
         streamingUsers.remove(socketChannel);
 
         //TODO expemimental
         userSongMap.remove(socketChannel);
-    }
-
-    public boolean isUserStreaming(SocketChannel userChannel) {
-        return streamingUsers.contains(userChannel);
     }
 
 }
