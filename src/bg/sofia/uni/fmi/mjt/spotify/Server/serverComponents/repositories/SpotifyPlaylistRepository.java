@@ -86,7 +86,12 @@ public class SpotifyPlaylistRepository {
                     .getBytes(StandardCharsets.UTF_8);
         }
 
-        if (!SpotifyStreamer.containsSong(song)) {
+//        if (!SpotifyStreamer.containsSong(song)) {
+//            return String.format("Song %s does not exist.%n", song)
+//                    .getBytes(StandardCharsets.UTF_8);
+//        }
+
+        if (!SpotifySongRepository.containsSong(song)) {
             return String.format("Song %s does not exist.%n", song)
                     .getBytes(StandardCharsets.UTF_8);
         }

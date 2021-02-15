@@ -1,15 +1,16 @@
 package bg.sofia.uni.fmi.mjt.spotify.Server;
 
 import bg.sofia.uni.fmi.mjt.spotify.Server.enums.SpotifyCommands;
-import bg.sofia.uni.fmi.mjt.spotify.Server.serverComponents.SpotifyStreamer;
 import bg.sofia.uni.fmi.mjt.spotify.Server.serverComponents.repositories.SpotifyClientRepository;
 import bg.sofia.uni.fmi.mjt.spotify.Server.serverComponents.repositories.SpotifyPlaylistRepository;
+import bg.sofia.uni.fmi.mjt.spotify.Server.serverComponents.repositories.SpotifySongRepository;
 import bg.sofia.uni.fmi.mjt.spotify.Server.serverComponents.repositories.SpotifyStatistics;
 
 import java.nio.channels.SocketChannel;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -49,7 +50,6 @@ public class SpotifyCommandExecutor {
         }
 
         String email = spotifyClientRepository.getEmail(userSocketChannel);
-        //TODO fix registration
 
         if (spotifyClientRepository.isLoggedIn(userSocketChannel)) {
             switch (command.get()) {
@@ -83,7 +83,7 @@ public class SpotifyCommandExecutor {
             t[j++] = tokens[i];
         }
 
-        List<String> searchSongs = SpotifyStreamer.searchSongs((t));
+        List<String> searchSongs = SpotifySongRepository.searchSongs((t));
 
         System.out.printf("Matched songs: %s", searchSongs.toString());
 
@@ -127,7 +127,23 @@ public class SpotifyCommandExecutor {
     }
 
     private byte[] top(String[] tokens) {
-        int number = Integer.parseInt(tokens[1]);
+
+        final int TOP_N_COMMAND_PARAMETER_INDEX = 1;
+        final int TOP_N_COMMAND_NUMBER_OF_PARAMETERS = 2;
+
+        if (tokens.length != TOP_N_COMMAND_NUMBER_OF_PARAMETERS) {
+            return "Wrong number of parameters. Must be top <n*> where n is a non-negative number"
+                    .getBytes(StandardCharsets.UTF_8);
+        }
+
+        int number;
+
+        try {
+            number = Integer.parseInt(tokens[TOP_N_COMMAND_PARAMETER_INDEX]);
+        } catch (InputMismatchException e) {
+            return "Wrong command format. Must be top <n*> where n is a non-negative number"
+                    .getBytes(StandardCharsets.UTF_8);
+        }
 
         List<String> topSongs = SpotifyStatistics.getNMostPopularSongs(number)
                 .stream()
