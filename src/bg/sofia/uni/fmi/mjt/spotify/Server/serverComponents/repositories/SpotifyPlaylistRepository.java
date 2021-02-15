@@ -1,6 +1,7 @@
-package bg.sofia.uni.fmi.mjt.spotify.Server.serverComponents;
+package bg.sofia.uni.fmi.mjt.spotify.Server.serverComponents.repositories;
 
 import bg.sofia.uni.fmi.mjt.spotify.Server.dto.Playlist;
+import bg.sofia.uni.fmi.mjt.spotify.Server.serverComponents.SpotifyStreamer;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 

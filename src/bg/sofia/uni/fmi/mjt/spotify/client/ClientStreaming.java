@@ -20,7 +20,10 @@ public class ClientStreaming implements Runnable {
 
     private static final int SERVER_PORT = 7777;
     private static final String SERVER_HOST = "localhost";
-    private static ByteBuffer buffer = ByteBuffer.allocateDirect(16_384);
+
+    private static int BUFFER_SIZE = 1_024;
+
+    private static ByteBuffer buffer = ByteBuffer.allocateDirect(BUFFER_SIZE);
 
     private final String command;
     private final String email;
@@ -80,12 +83,21 @@ public class ClientStreaming implements Runnable {
                 buffer.clear();
 
                 try {
-
                     r = socketChannel.read(buffer);
                 } catch (Exception e) {
                     System.out.println("Hard reset");
                 }
-                
+
+                if (r == 1) {
+                    dataLine.stop();
+                    dataLine.close();
+                    socketChannel.close();
+
+                    System.out.println("Die streaming");
+                    return;
+                }
+
+
                 buffer.flip();
 
                 byte[] bytes = new byte[buffer.remaining()];
@@ -95,13 +107,6 @@ public class ClientStreaming implements Runnable {
 
 //                System.out.println("received bytes:" + receivedBytes);
 
-                if (r == 1) {
-                    dataLine.close();
-                    socketChannel.close();
-
-                    System.out.println("Die streaming");
-                    break;
-                }
 
                 dataLine.write(bytes, 0, bytes.length);
             }

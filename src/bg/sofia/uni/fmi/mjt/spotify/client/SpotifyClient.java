@@ -15,7 +15,11 @@ public class SpotifyClient {
 
     private static final int SERVER_PORT = 7777;
     private static final String SERVER_HOST = "localhost";
-    private static ByteBuffer buffer = ByteBuffer.allocateDirect(16_384);
+    private static final int BUFFER_SIZE = 1_024;
+
+
+    private static ByteBuffer buffer = ByteBuffer.allocateDirect(BUFFER_SIZE);
+
 
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
@@ -59,15 +63,13 @@ public class SpotifyClient {
 
                 if (message.startsWith("play")) {
 
-                    if (isStreaming) {
-                        System.out.println("Please stop current song first with command <stop>");
-                        continue;
-                    }
+//                    if (isStreaming) {
+//                        System.out.println("Please stop current song first with command <stop>");
+//                        continue;
+//                    }
 
                     executorService.execute(new ClientStreaming(message, email));
-                    isStreaming = true;
-                } else if (message.startsWith("stop")) {
-                    isStreaming = false;
+//                    isStreaming = true;
                 } else {
                     buffer.clear();
                     buffer.put(message.getBytes());

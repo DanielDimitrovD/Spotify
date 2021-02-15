@@ -1,6 +1,7 @@
 package bg.sofia.uni.fmi.mjt.spotify.Server.serverComponents;
 
 import bg.sofia.uni.fmi.mjt.spotify.Server.dto.AudioFormatDTO;
+import bg.sofia.uni.fmi.mjt.spotify.Server.serverComponents.repositories.SpotifyStatistics;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
@@ -21,7 +22,7 @@ import java.util.stream.Stream;
 
 public class SpotifyStreamer {
 
-    private static final int BUFFER_SIZE = 16_384;
+    private static final int BUFFER_SIZE = 1_024;
 
     private static String musicFolderURL;
     private Map<SocketChannel, Long> songCurrentBytesMap = new HashMap<>();
@@ -34,6 +35,8 @@ public class SpotifyStreamer {
 
 
     private Map<String, Long> songSize = new HashMap<>();
+
+    private SpotifyStatistics statistics = new SpotifyStatistics();
 
 
     public SpotifyStreamer(String musicFolderURL) {
@@ -129,7 +132,10 @@ public class SpotifyStreamer {
 
         System.out.printf("Matched song:%s", matchedSongs.get(0));
 
-        userSongMap.put(userChannel, matchedSongs.get(0));
+        String matchedSong = matchedSongs.get(0);
+
+        userSongMap.put(userChannel, matchedSong);
+        statistics.updateSong(matchedSong);
     }
 
 
@@ -155,6 +161,7 @@ public class SpotifyStreamer {
 
         return null;
     }
+
 
     private byte[] objectToByteArray(Object object) {
         try (ByteArrayOutputStream bos = new ByteArrayOutputStream();

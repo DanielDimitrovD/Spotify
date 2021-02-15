@@ -1,4 +1,4 @@
-package bg.sofia.uni.fmi.mjt.spotify.Server.serverComponents;
+package bg.sofia.uni.fmi.mjt.spotify.Server.serverComponents.repositories;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;

@@ -1,9 +1,10 @@
 package bg.sofia.uni.fmi.mjt.spotify.Server;
 
 import bg.sofia.uni.fmi.mjt.spotify.Server.enums.SpotifyCommands;
-import bg.sofia.uni.fmi.mjt.spotify.Server.serverComponents.SpotifyClientRepository;
-import bg.sofia.uni.fmi.mjt.spotify.Server.serverComponents.SpotifyPlaylistRepository;
 import bg.sofia.uni.fmi.mjt.spotify.Server.serverComponents.SpotifyStreamer;
+import bg.sofia.uni.fmi.mjt.spotify.Server.serverComponents.repositories.SpotifyClientRepository;
+import bg.sofia.uni.fmi.mjt.spotify.Server.serverComponents.repositories.SpotifyPlaylistRepository;
+import bg.sofia.uni.fmi.mjt.spotify.Server.serverComponents.repositories.SpotifyStatistics;
 
 import java.nio.channels.SocketChannel;
 import java.nio.charset.StandardCharsets;
@@ -53,7 +54,7 @@ public class SpotifyCommandExecutor {
         if (spotifyClientRepository.isLoggedIn(userSocketChannel)) {
             switch (command.get()) {
                 case SEARCH -> reply = search(tokens);
-                //            case TOP -> reply = top();
+                case TOP -> reply = top(tokens);
                 case CREATE_PLAYLIST -> reply = createPlaylist(email, tokens);
                 case ADD_SONG_TO -> reply = addSongToPlaylist(email, tokens);
                 case SHOW_PLAYLIST -> reply = showPlaylist(email, tokens);
@@ -125,8 +126,20 @@ public class SpotifyCommandExecutor {
         return spotifyPlaylistRepository.createPlaylist(email, tokens);
     }
 
-    private String top() {
-        return null;
+    private byte[] top(String[] tokens) {
+        int number = Integer.parseInt(tokens[1]);
+
+        List<String> topSongs = SpotifyStatistics.getNMostPopularSongs(number)
+                .stream()
+                .collect(Collectors.toList());
+
+        if (topSongs.isEmpty()) {
+            return "No songs played in the system".getBytes(StandardCharsets.UTF_8);
+        }
+
+        return topSongs.stream()
+                .collect(Collectors.joining(System.lineSeparator()))
+                .getBytes(StandardCharsets.UTF_8);
     }
 
 }

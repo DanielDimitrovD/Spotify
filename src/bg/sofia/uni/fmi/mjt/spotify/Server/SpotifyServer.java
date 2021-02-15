@@ -1,6 +1,6 @@
 package bg.sofia.uni.fmi.mjt.spotify.Server;
 
-import bg.sofia.uni.fmi.mjt.spotify.Server.serverComponents.SpotifyClientRepository;
+import bg.sofia.uni.fmi.mjt.spotify.Server.serverComponents.repositories.SpotifyClientRepository;
 import bg.sofia.uni.fmi.mjt.spotify.Server.serverComponents.SpotifyStreamer;
 import bg.sofia.uni.fmi.mjt.spotify.serverException.ServerStartupException;
 
@@ -21,7 +21,7 @@ public class SpotifyServer implements AutoCloseable {
 
     public static final int SERVER_PORT = 7777;
     private static final String SERVER_HOST = "localhost";
-    private static final int BUFFER_SIZE = 16_384;
+    private static final int BUFFER_SIZE = 1_024;
     private final int port;
     private boolean runServer = true;
 
@@ -232,7 +232,6 @@ public class SpotifyServer implements AutoCloseable {
             for (int i = 2; i < tokens.length; i++) {
                 songName[j++] = tokens[i];
             }
-
 
             spotifyStreamer.setSongForUser(socketChannel, songName);
 
