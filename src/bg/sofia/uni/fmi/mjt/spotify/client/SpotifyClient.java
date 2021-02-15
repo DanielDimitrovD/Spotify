@@ -92,6 +92,7 @@ public class SpotifyClient {
                     }
 
                     if (reply.contains("disconnected")) {
+                        executorService.shutdown();
                         return;
                     }
                 }
