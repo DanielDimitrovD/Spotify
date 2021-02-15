@@ -118,10 +118,6 @@ public class SpotifyCommandExecutor {
         return spotifyClientRepository.register(tokens);
     }
 
-    private boolean authenticateUser(SocketChannel userChannel) {
-        return spotifyClientRepository.isLoggedIn(userChannel);
-    }
-
     private byte[] createPlaylist(String email, String[] tokens) {
         return spotifyPlaylistRepository.createPlaylist(email, tokens);
     }

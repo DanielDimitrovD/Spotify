@@ -1,7 +1,6 @@
 package bg.sofia.uni.fmi.mjt.spotify.Server.serverComponents.repositories;
 
 import bg.sofia.uni.fmi.mjt.spotify.Server.dto.Playlist;
-import bg.sofia.uni.fmi.mjt.spotify.Server.serverComponents.SpotifyStreamer;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
@@ -85,11 +84,6 @@ public class SpotifyPlaylistRepository {
             return String.format("Playlist %s already has song %s.%n", playlistName, song)
                     .getBytes(StandardCharsets.UTF_8);
         }
-
-//        if (!SpotifyStreamer.containsSong(song)) {
-//            return String.format("Song %s does not exist.%n", song)
-//                    .getBytes(StandardCharsets.UTF_8);
-//        }
 
         if (!SpotifySongRepository.containsSong(song)) {
             return String.format("Song %s does not exist.%n", song)

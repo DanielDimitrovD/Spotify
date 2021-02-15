@@ -31,13 +31,14 @@ public class SpotifyServer implements AutoCloseable {
 
     private SpotifyCommandExecutor commandInterpreter;
 
+    private SpotifyStreamer spotifyStreamer;
+
     private ServerSocketChannel serverSocketChannel;
     private Selector selector;
     private ByteBuffer buffer;
 
-    private SpotifyStreamer spotifyStreamer;
-    private Map<String, SocketChannel> streamingUsersMap = new HashMap<>();
-    private Set<SocketChannel> stopStreaming = new HashSet<>();
+    private Map<String, SocketChannel> userToChannel = new HashMap<>();
+    private Set<SocketChannel> candidatesToStopStreaming = new HashSet<>();
 
     public SpotifyServer(int port, Path credentialsFile, Path playlistFile, String musicFolderURL) {
 
@@ -133,7 +134,7 @@ public class SpotifyServer implements AutoCloseable {
     }
 
     private void stopStreamingToChannelCleanup(SocketChannel socketChannel) throws IOException {
-        stopStreaming.remove(socketChannel);
+        candidatesToStopStreaming.remove(socketChannel);
         writeToChannel(new byte[]{-1}, socketChannel);
 
         System.out.println("Stopping streaming to " + socketChannel);
@@ -146,7 +147,7 @@ public class SpotifyServer implements AutoCloseable {
 
         SocketChannel socketChannel = (SocketChannel) key.channel();
 
-        if (stopStreaming.contains(socketChannel)) {
+        if (candidatesToStopStreaming.contains(socketChannel)) {
             stopStreamingToChannelCleanup(socketChannel);
             return;
         }
@@ -172,19 +173,18 @@ public class SpotifyServer implements AutoCloseable {
 
     private byte[] readFromBuffer() {
         buffer.flip();
-
         byte[] byteArray = new byte[buffer.remaining()];
         buffer.get(byteArray);
-
         buffer.clear();
-
         return byteArray;
     }
 
     private String[] getUserSongName(String[] tokens) {
-        String[] songName = new String[tokens.length - 2];
+        final int PLAY_COMMAND_SONG_PARAMETERS_START = 2;
+
+        String[] songName = new String[tokens.length - PLAY_COMMAND_SONG_PARAMETERS_START];
         int j = 0;
-        for (int i = 2; i < tokens.length; i++) {
+        for (int i = PLAY_COMMAND_SONG_PARAMETERS_START; i < tokens.length; i++) {
             songName[j++] = tokens[i];
         }
         return songName;
@@ -204,37 +204,42 @@ public class SpotifyServer implements AutoCloseable {
 
         String[] songName = getUserSongName(tokens);
 
-//        String[] songName = new String[tokens.length - 2];
-//        int j = 0;
-//        for (int i = 2; i < tokens.length; i++) {
-//            songName[j++] = tokens[i];
-//        }
-
         if (!songExists(songName)) {
             writeToChannel("No such song in Spotify".getBytes(StandardCharsets.UTF_8), socketChannel);
-        } else {
-
-            spotifyStreamer.setSongForUser(socketChannel, songName);
-            System.out.println("want to stream music. Sending music info to client");
-            byte[] bytes = spotifyStreamer.getAudioFormatHeaders(socketChannel);
-
-            writeToChannel(bytes, socketChannel);
-
-            // preregister key
-            key.interestOps(SelectionKey.OP_WRITE);
-
-            streamingUsersMap.put(email, socketChannel);
-
-            System.out.println("Streaming socket channel : " + socketChannel);
+            return;
         }
+
+        spotifyStreamer.setSongForChannel(socketChannel, songName);
+        System.out.println("want to stream music. Sending music info to client");
+        byte[] bytes = spotifyStreamer.getAudioFormatHeaders(socketChannel);
+
+        writeToChannel(bytes, socketChannel);
+
+        // preregister key
+        key.interestOps(SelectionKey.OP_WRITE);
+
+        userToChannel.put(email, socketChannel);
+
+        System.out.println("Streaming socket channel : " + socketChannel);
+    }
+
+
+    private void prepareChannelToStopStreaming(SocketChannel socketChannel) {
+        String email = SpotifyClientRepository.getEmail(socketChannel);
+
+        System.out.println("User wants to stop streaming :" + email);
+
+        SocketChannel streamingChannel = userToChannel.get(email);
+
+        candidatesToStopStreaming.add(streamingChannel);
+
+        writeToChannel("Stopping streaming in a moment ...".getBytes(StandardCharsets.UTF_8), socketChannel);
     }
 
     private void read(SelectionKey key) throws IOException {
         SocketChannel socketChannel = (SocketChannel) key.channel();
 
         System.out.println("Reading socket channel: " + socketChannel);
-
-
         int r = 0;
 
         try {
@@ -253,50 +258,9 @@ public class SpotifyServer implements AutoCloseable {
         String userMessage = new String(responseBytes, "UTF-8");
 
         if (userMessage.startsWith("play")) {
-
-//            String[] tokens = userMessage.split("\\s+");
-//
-//            String email = tokens[1];
-//
-//            String[] songName = new String[tokens.length - 2];
-//            int j = 0;
-//            for (int i = 2; i < tokens.length; i++) {
-//                songName[j++] = tokens[i];
-//            }
-//
-//            if (!SpotifySongRepository.containsSong(Arrays.stream(songName).collect(Collectors.joining(" ")))) {
-//                writeToChannel("No such song in Spotify".getBytes(StandardCharsets.UTF_8), socketChannel);
-//            } else {
-//
-//                spotifyStreamer.setSongForUser(socketChannel, songName);
-//                System.out.println("want to stream music. Sending music info to client");
-//                byte[] bytes = spotifyStreamer.getAudioFormatHeaders(socketChannel);
-//
-//                writeToChannel(bytes, socketChannel);
-//
-//                // preregister key
-//                key.interestOps(SelectionKey.OP_WRITE);
-//                streamingUsersMap.put(email, socketChannel);
-//
-//                System.out.println("Streaming socket channel : " + socketChannel);
-//
-//            }
-
             prepareChannelForStreaming(userMessage, socketChannel, key);
-
         } else if (userMessage.startsWith("stop")) {
-
-            String email = SpotifyClientRepository.getEmail(socketChannel);
-
-            System.out.println("User wants to stop streaming :" + email);
-
-            SocketChannel streamingChannel = streamingUsersMap.get(email);
-
-            stopStreaming.add(streamingChannel);
-
-            writeToChannel("Stopping streaming in a moment ...".getBytes(StandardCharsets.UTF_8), socketChannel);
-
-
+            prepareChannelToStopStreaming(socketChannel);
         } else {
             byte[] serverReply = commandInterpreter.interpretCommand(userMessage, socketChannel);
             writeToChannel(serverReply, socketChannel);
@@ -304,7 +268,6 @@ public class SpotifyServer implements AutoCloseable {
         }
 
     }
-
 
     private void acceptConnection(SelectionKey key) {
 

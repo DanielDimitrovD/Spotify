@@ -55,7 +55,7 @@ public class ClientStreaming implements Runnable {
 
             String response = new String(byteArray, "UTF-8");
 
-            if (response.contains("No such song")) {
+            if (response.contains("No such song") || response.contains("Login into Spotify")) {
                 System.out.println(response);
                 return;
             }

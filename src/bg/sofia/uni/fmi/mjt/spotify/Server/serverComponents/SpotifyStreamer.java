@@ -3,6 +3,7 @@ package bg.sofia.uni.fmi.mjt.spotify.Server.serverComponents;
 import bg.sofia.uni.fmi.mjt.spotify.Server.dto.AudioFormatDTO;
 import bg.sofia.uni.fmi.mjt.spotify.Server.serverComponents.repositories.SpotifySongRepository;
 import bg.sofia.uni.fmi.mjt.spotify.Server.serverComponents.repositories.SpotifyStatistics;
+import bg.sofia.uni.fmi.mjt.spotify.Server.serverComponents.repositories.exceptions.AudioFormatDTOExcepton;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
@@ -22,20 +23,20 @@ public class SpotifyStreamer {
 
     private static final int BUFFER_SIZE = 1_024;
 
-    private Map<SocketChannel, Long> songCurrentBytesMap = new HashMap<>();
-    private Set<SocketChannel> streamingUsers = new HashSet<>();
-    private Map<SocketChannel, String> userSongMap = new HashMap<>();
+    private Map<SocketChannel, Long> channelToSongCurrentBytes = new HashMap<>();
+    private Set<SocketChannel> streamingChannels = new HashSet<>();
+    private Map<SocketChannel, String> channelToSong = new HashMap<>();
     private SpotifyStatistics statistics = new SpotifyStatistics();
+
     private SpotifySongRepository songRepository;
 
     public SpotifyStreamer(String musicFolderURL) {
         songRepository = new SpotifySongRepository(musicFolderURL);
     }
 
+    public void setSongForChannel(SocketChannel userChannel, String[] song) {
 
-    public void setSongForUser(SocketChannel userChannel, String[] song) {
-
-        System.out.printf("Song parameters: %s", Arrays.deepToString(song));
+//        System.out.printf("Song parameters: %s", Arrays.deepToString(song));
 
         List<String> matchedSongs = songRepository.searchSongs(song);
 
@@ -44,22 +45,28 @@ public class SpotifyStreamer {
             return;
         }
 
-        System.out.println("Set song for user");
-        System.out.println("Matched songs: " + matchedSongs.toString());
-
-        System.out.printf("Matched song:%s", matchedSongs.get(0));
+//        System.out.println("Set song for user");
+//        System.out.println("Matched songs: " + matchedSongs.toString());
+//
+//        System.out.printf("Matched song:%s", matchedSongs.get(0));
 
         String matchedSong = matchedSongs.get(0);
 
-        userSongMap.put(userChannel, matchedSong);
+        channelToSong.put(userChannel, matchedSong);
         statistics.updateSong(matchedSong);
     }
 
+    private String channelToSongAbsolutePath(SocketChannel userSocketChannel) {
+
+        String userSongChoice = channelToSong.get(userSocketChannel);
+        String songAbsolutePath = songRepository.getSongAbsolutePath(userSongChoice);
+
+        return songAbsolutePath;
+    }
 
     public byte[] getAudioFormatHeaders(SocketChannel userSocketChannel) {
 
-        String userSongChoice = userSongMap.get(userSocketChannel);
-        String songAbsolutePath = songRepository.getSongAbsolutePath(userSongChoice);
+        String songAbsolutePath = channelToSongAbsolutePath(userSocketChannel);
 
         if (songAbsolutePath == null) {
             return "No such song is Spotify!".getBytes(StandardCharsets.UTF_8);
@@ -78,19 +85,16 @@ public class SpotifyStreamer {
 
             return objectToByteArray(dto);
         } catch (IOException | UnsupportedAudioFileException e) {
-            e.printStackTrace();
+            throw new AudioFormatDTOExcepton("Could not marshall AudioFormatDTO");
         }
-
-        return null;
     }
-
 
     private byte[] objectToByteArray(Object object) {
         try (ByteArrayOutputStream bos = new ByteArrayOutputStream();
              ObjectOutputStream out = new ObjectOutputStream(bos)) {
             out.writeObject(object);
 
-            System.out.println(object.toString());
+//            System.out.println(object.toString());
 
             return bos.toByteArray();
         } catch (IOException e) {
@@ -101,23 +105,13 @@ public class SpotifyStreamer {
     }
 
     public byte[] readMusicChunk(SocketChannel socketChannel) throws IOException, UnsupportedAudioFileException {
-        songCurrentBytesMap.putIfAbsent(socketChannel, 0L);
+        channelToSongCurrentBytes.putIfAbsent(socketChannel, 0L);
 
-        String userSong = userSongMap.get(socketChannel);
-
-//        System.out.println("user song: " + userSong);
-
-        // TODO experiment
-//        String songChoice = songMap.get(userSong);
-        String songChoice = songRepository.getSongAbsolutePath(userSong);
-
-//        System.out.println("user song name:" + songName);
-
-        String songAbsolutePath = songChoice;
+        String songAbsolutePath = channelToSongAbsolutePath(socketChannel);
 
         try (AudioInputStream stream = AudioSystem.getAudioInputStream(new File(songAbsolutePath))) {
 
-            long currentPositionInBytes = songCurrentBytesMap.get(socketChannel);
+            long currentPositionInBytes = channelToSongCurrentBytes.get(socketChannel);
 
 //            System.out.println("current position in bytes: " + currentPositionInBytes);
 
@@ -137,22 +131,22 @@ public class SpotifyStreamer {
                 System.out.println("clear song");
 
                 clearStreamingSocketChannel(socketChannel);
-                streamingUsers.remove(socketChannel);
+                streamingChannels.remove(socketChannel);
                 return new byte[]{-1};
             }
 
 //            System.out.println("Stream available bytes: " + availableBytes);
 
-            songCurrentBytesMap.put(socketChannel, currentPositionInBytes + availableBytes);
+            channelToSongCurrentBytes.put(socketChannel, currentPositionInBytes + availableBytes);
 
             return bytes;
         }
     }
 
     private void clearStreamingSocketChannel(SocketChannel socketChannel) {
-        songCurrentBytesMap.put(socketChannel, 0L);
-        streamingUsers.remove(socketChannel);
-        userSongMap.remove(socketChannel);
+        channelToSongCurrentBytes.put(socketChannel, 0L);
+        streamingChannels.remove(socketChannel);
+        channelToSong.remove(socketChannel);
     }
 
 }
