@@ -181,6 +181,54 @@ public class SpotifyServer implements AutoCloseable {
         return byteArray;
     }
 
+    private String[] getUserSongName(String[] tokens) {
+        String[] songName = new String[tokens.length - 2];
+        int j = 0;
+        for (int i = 2; i < tokens.length; i++) {
+            songName[j++] = tokens[i];
+        }
+        return songName;
+    }
+
+    private boolean songExists(String[] songTokens) {
+        return SpotifySongRepository.containsSong(Arrays.stream(songTokens)
+                .collect(Collectors.joining(" ")));
+    }
+
+
+    private void prepareChannelForStreaming(String userMessage, SocketChannel socketChannel, SelectionKey key) {
+        String[] tokens = userMessage.split("\\s+");
+
+        final int PLAY_COMMAND_USER_EMAIL_INDEX = 1;
+        String email = tokens[PLAY_COMMAND_USER_EMAIL_INDEX];
+
+        String[] songName = getUserSongName(tokens);
+
+//        String[] songName = new String[tokens.length - 2];
+//        int j = 0;
+//        for (int i = 2; i < tokens.length; i++) {
+//            songName[j++] = tokens[i];
+//        }
+
+        if (!songExists(songName)) {
+            writeToChannel("No such song in Spotify".getBytes(StandardCharsets.UTF_8), socketChannel);
+        } else {
+
+            spotifyStreamer.setSongForUser(socketChannel, songName);
+            System.out.println("want to stream music. Sending music info to client");
+            byte[] bytes = spotifyStreamer.getAudioFormatHeaders(socketChannel);
+
+            writeToChannel(bytes, socketChannel);
+
+            // preregister key
+            key.interestOps(SelectionKey.OP_WRITE);
+
+            streamingUsersMap.put(email, socketChannel);
+
+            System.out.println("Streaming socket channel : " + socketChannel);
+        }
+    }
+
     private void read(SelectionKey key) throws IOException {
         SocketChannel socketChannel = (SocketChannel) key.channel();
 
@@ -206,33 +254,36 @@ public class SpotifyServer implements AutoCloseable {
 
         if (userMessage.startsWith("play")) {
 
-            String[] tokens = userMessage.split("\\s+");
+//            String[] tokens = userMessage.split("\\s+");
+//
+//            String email = tokens[1];
+//
+//            String[] songName = new String[tokens.length - 2];
+//            int j = 0;
+//            for (int i = 2; i < tokens.length; i++) {
+//                songName[j++] = tokens[i];
+//            }
+//
+//            if (!SpotifySongRepository.containsSong(Arrays.stream(songName).collect(Collectors.joining(" ")))) {
+//                writeToChannel("No such song in Spotify".getBytes(StandardCharsets.UTF_8), socketChannel);
+//            } else {
+//
+//                spotifyStreamer.setSongForUser(socketChannel, songName);
+//                System.out.println("want to stream music. Sending music info to client");
+//                byte[] bytes = spotifyStreamer.getAudioFormatHeaders(socketChannel);
+//
+//                writeToChannel(bytes, socketChannel);
+//
+//                // preregister key
+//                key.interestOps(SelectionKey.OP_WRITE);
+//                streamingUsersMap.put(email, socketChannel);
+//
+//                System.out.println("Streaming socket channel : " + socketChannel);
+//
+//            }
 
-            String email = tokens[1];
+            prepareChannelForStreaming(userMessage, socketChannel, key);
 
-            String[] songName = new String[tokens.length - 2];
-            int j = 0;
-            for (int i = 2; i < tokens.length; i++) {
-                songName[j++] = tokens[i];
-            }
-
-            if (!SpotifySongRepository.containsSong(Arrays.stream(songName).collect(Collectors.joining(" ")))) {
-                writeToChannel("No such song in Spotify".getBytes(StandardCharsets.UTF_8), socketChannel);
-            } else {
-
-                spotifyStreamer.setSongForUser(socketChannel, songName);
-                System.out.println("want to stream music. Sending music info to client");
-                byte[] bytes = spotifyStreamer.getAudioFormatHeaders(socketChannel);
-
-                writeToChannel(bytes, socketChannel);
-
-                // preregister key
-                key.interestOps(SelectionKey.OP_WRITE);
-                streamingUsersMap.put(email, socketChannel);
-
-                System.out.println("Streaming socket channel : " + socketChannel);
-
-            }
         } else if (userMessage.startsWith("stop")) {
 
             String email = SpotifyClientRepository.getEmail(socketChannel);
