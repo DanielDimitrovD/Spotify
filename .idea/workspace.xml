@@ -3,15 +3,10 @@
   <component name="ChangeListManager">
     <list default="true" id="596b398e-2482-41a0-91d7-6546410c5cf2" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Spotify/bg/sofia/uni/fmi/mjt/spotify/Server/SpotifyCommandExecutor.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Spotify/bg/sofia/uni/fmi/mjt/spotify/Server/SpotifyCommandExecutor.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/out/production/Spotify/bg/sofia/uni/fmi/mjt/spotify/Server/SpotifyServer.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Spotify/bg/sofia/uni/fmi/mjt/spotify/Server/SpotifyServer.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Spotify/bg/sofia/uni/fmi/mjt/spotify/Server/serverComponents/SpotifyStreamer.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Spotify/bg/sofia/uni/fmi/mjt/spotify/Server/serverComponents/SpotifyStreamer.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Spotify/bg/sofia/uni/fmi/mjt/spotify/Server/serverComponents/repositories/SpotifySongRepository.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Spotify/bg/sofia/uni/fmi/mjt/spotify/Server/serverComponents/repositories/SpotifySongRepository.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/out/production/Spotify/bg/sofia/uni/fmi/mjt/spotify/client/ClientStreaming.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Spotify/bg/sofia/uni/fmi/mjt/spotify/client/ClientStreaming.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/playlists.json" beforeDir="false" afterPath="$PROJECT_DIR$/playlists.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/bg/sofia/uni/fmi/mjt/spotify/Server/SpotifyServer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/bg/sofia/uni/fmi/mjt/spotify/Server/SpotifyServer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/bg/sofia/uni/fmi/mjt/spotify/Server/serverComponents/SpotifyStreamer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/bg/sofia/uni/fmi/mjt/spotify/Server/serverComponents/SpotifyStreamer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/bg/sofia/uni/fmi/mjt/spotify/Server/serverComponents/repositories/SpotifySongRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/bg/sofia/uni/fmi/mjt/spotify/Server/serverComponents/repositories/SpotifySongRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/bg/sofia/uni/fmi/mjt/spotify/client/ClientStreaming.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/bg/sofia/uni/fmi/mjt/spotify/client/ClientStreaming.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -218,7 +213,7 @@
       <workItem from="1613289757254" duration="17705000" />
       <workItem from="1613373871113" duration="1259000" />
       <workItem from="1613391470173" duration="3432000" />
-      <workItem from="1613397057670" duration="17397000" />
+      <workItem from="1613397057670" duration="19138000" />
     </task>
     <servers />
   </component>
