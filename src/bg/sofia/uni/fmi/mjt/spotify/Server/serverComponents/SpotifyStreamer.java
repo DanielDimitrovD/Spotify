@@ -55,7 +55,9 @@ public class SpotifyStreamer {
 
     public static List<String> searchSongs(String[] words) {
 
-        List<String> tokens = Arrays.stream(words).skip(1).collect(Collectors.toList());
+//        List<String> tokens = Arrays.stream(words).skip(1).collect(Collectors.toList());
+
+        List<String> tokens = Arrays.stream(words).collect(Collectors.toList());
 
         Function<Path, String> pathToString = s -> s.getFileName().toString().split(".wav")[0];
         Predicate<String> matchWordsToSong = p -> {
@@ -182,11 +184,11 @@ public class SpotifyStreamer {
 
         String userSong = userSongMap.get(socketChannel);
 
-        System.out.println("user song: " + userSong);
+//        System.out.println("user song: " + userSong);
 
         String songName = songMap.get(userSong);
 
-        System.out.println("user song name:" + songName);
+//        System.out.println("user song name:" + songName);
 
         String songAbsolutePath = songName;
 
@@ -194,13 +196,13 @@ public class SpotifyStreamer {
 
             long currentPositionInBytes = songCurrentBytesMap.get(socketChannel);
 
-            System.out.println("current position in bytes: " + currentPositionInBytes);
+//            System.out.println("current position in bytes: " + currentPositionInBytes);
 
             byte[] bytes = new byte[BUFFER_SIZE];
 
             long skipped = stream.skip(currentPositionInBytes);
 
-            System.out.println("skipped: " + skipped);
+//            System.out.println("skipped: " + skipped);
 
             int r = stream.read(bytes);
 
@@ -216,7 +218,7 @@ public class SpotifyStreamer {
                 return new byte[]{-1};
             }
 
-            System.out.println("Stream available bytes: " + availableBytes);
+//            System.out.println("Stream available bytes: " + availableBytes);
 
             songCurrentBytesMap.put(socketChannel, currentPositionInBytes + availableBytes);
 

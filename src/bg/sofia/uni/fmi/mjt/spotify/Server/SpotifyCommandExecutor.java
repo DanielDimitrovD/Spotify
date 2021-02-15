@@ -48,8 +48,6 @@ public class SpotifyCommandExecutor {
         }
 
         String email = spotifyClientRepository.getEmail(userSocketChannel);
-
-
         //TODO fix registration
 
         if (spotifyClientRepository.isLoggedIn(userSocketChannel)) {
@@ -60,7 +58,7 @@ public class SpotifyCommandExecutor {
                 case ADD_SONG_TO -> reply = addSongToPlaylist(email, tokens);
                 case SHOW_PLAYLIST -> reply = showPlaylist(email, tokens);
                 //           case PLAY_SONG -> reply = playSong(userSocketChannel);
-                //            case STOP -> reply = stop();
+//                case STOP -> reply = stop();
                 case DISCONNECT -> reply = disconnect(userSocketChannel);
                 default -> reply = String.format("Unknown command.%n").getBytes(StandardCharsets.UTF_8);
             }
@@ -77,7 +75,14 @@ public class SpotifyCommandExecutor {
     }
 
     private byte[] search(String[] tokens) {
-        List<String> searchSongs = SpotifyStreamer.searchSongs((tokens));
+
+        String[] t = new String[tokens.length - 1];
+        int j = 0;
+        for (int i = 1; i < tokens.length; i++) {
+            t[j++] = tokens[i];
+        }
+
+        List<String> searchSongs = SpotifyStreamer.searchSongs((t));
 
         System.out.printf("Matched songs: %s", searchSongs.toString());
 
@@ -112,10 +117,10 @@ public class SpotifyCommandExecutor {
         return spotifyClientRepository.register(tokens);
     }
 
-
-    private String stop() {
-        return null;
-    }
+//
+//    private byte[] stop() {
+//        return ;
+//    }
 
 
     private boolean authenticateUser(SocketChannel userChannel) {

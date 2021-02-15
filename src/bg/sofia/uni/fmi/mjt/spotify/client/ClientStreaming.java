@@ -13,6 +13,8 @@ import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
 public class ClientStreaming implements Runnable {
 
@@ -21,9 +23,17 @@ public class ClientStreaming implements Runnable {
     private static ByteBuffer buffer = ByteBuffer.allocateDirect(16_384);
 
     private final String command;
+    private final String email;
 
-    public ClientStreaming(String command) {
-        this.command = command;
+
+    public ClientStreaming(String command, String email) {
+
+        String[] tokens = command.split("\\s+");
+
+        this.email = email;
+        this.command = String.format("%s %s %s", tokens[0], email, Arrays.stream(tokens)
+                .skip(1)
+                .collect(Collectors.joining(" ")));
     }
 
 
@@ -63,13 +73,19 @@ public class ClientStreaming implements Runnable {
 
             long receivedBytes = 0;
 
-            int r;
+            int r = 0;
 
             while (true) {
 
                 buffer.clear();
 
-                r = socketChannel.read(buffer);
+                try {
+
+                    r = socketChannel.read(buffer);
+                } catch (Exception e) {
+                    System.out.println("Hard reset");
+                }
+                
                 buffer.flip();
 
                 byte[] bytes = new byte[buffer.remaining()];
@@ -81,6 +97,9 @@ public class ClientStreaming implements Runnable {
 
                 if (r == 1) {
                     dataLine.close();
+                    socketChannel.close();
+
+                    System.out.println("Die streaming");
                     break;
                 }
 

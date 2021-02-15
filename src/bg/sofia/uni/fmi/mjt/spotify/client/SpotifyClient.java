@@ -55,7 +55,7 @@ public class SpotifyClient {
                 String message = String.format("%s%n", scanner.nextLine());
 
                 if (message.startsWith("play")) {
-                    executorService.execute(new ClientStreaming(message));
+                    executorService.execute(new ClientStreaming(message, "test"));
                 } else {
 
                     buffer.clear();

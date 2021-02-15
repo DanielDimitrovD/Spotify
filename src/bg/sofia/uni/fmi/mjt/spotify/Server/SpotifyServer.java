@@ -1,5 +1,6 @@
 package bg.sofia.uni.fmi.mjt.spotify.Server;
 
+import bg.sofia.uni.fmi.mjt.spotify.Server.serverComponents.SpotifyClientRepository;
 import bg.sofia.uni.fmi.mjt.spotify.Server.serverComponents.SpotifyStreamer;
 import bg.sofia.uni.fmi.mjt.spotify.serverException.ServerStartupException;
 
@@ -12,12 +13,9 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.*;
 
 public class SpotifyServer implements AutoCloseable {
 
@@ -34,6 +32,10 @@ public class SpotifyServer implements AutoCloseable {
     private ByteBuffer buffer;
 
     private SpotifyStreamer spotifyStreamer;
+
+    private Map<String, SocketChannel> streamingUsersMap = new HashMap<>();
+
+    private Set<SocketChannel> stopStreaming = new HashSet<>();
 
     public SpotifyServer(int port, Path credentialsFile, Path playlistFile, String musicFolderURL) {
 
@@ -118,16 +120,39 @@ public class SpotifyServer implements AutoCloseable {
         }
     }
 
+
+    private void writeToChannel(byte[] bytes, SocketChannel channel) {
+        buffer.clear();
+        buffer.put(bytes);
+        buffer.flip();
+
+        try {
+            channel.write(buffer);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        buffer.clear();
+    }
+
     private void write(SelectionKey key) throws IOException, UnsupportedAudioFileException {
 
-        System.out.println("key is writable");
+//        System.out.println("key is writable");
 
         SocketChannel socketChannel = (SocketChannel) key.channel();
 
+        if (stopStreaming.contains(socketChannel)) {
+
+            stopStreaming.remove(socketChannel);
+            writeToChannel(new byte[]{-1}, socketChannel);
+
+            System.out.println("Stopping streaming to " + socketChannel);
+
+            socketChannel.close();
+            return;
+        }
+
         buffer.clear();
-
-        System.out.println();
-
         byte[] bytes = spotifyStreamer.readMusicChunk(socketChannel);
 
         // reset song
@@ -168,9 +193,9 @@ public class SpotifyServer implements AutoCloseable {
     }
 
     private void read(SelectionKey key) throws IOException {
-//        System.out.println("key is readable");
-
         SocketChannel socketChannel = (SocketChannel) key.channel();
+
+        System.out.println("Reading socket channel: " + socketChannel);
 
         buffer.clear();
 
@@ -198,7 +223,15 @@ public class SpotifyServer implements AutoCloseable {
 
         if (userMessage.startsWith("play")) {
 
-            String[] songName = userMessage.split("\\s+");
+            String[] tokens = userMessage.split("\\s+");
+
+            String email = tokens[1];
+
+            String[] songName = new String[tokens.length - 2];
+            int j = 0;
+            for (int i = 2; i < tokens.length; i++) {
+                songName[j++] = tokens[i];
+            }
 
             spotifyStreamer.setSongForUser(socketChannel, songName);
 
@@ -215,6 +248,23 @@ public class SpotifyServer implements AutoCloseable {
 
             // preregister key
             key.interestOps(SelectionKey.OP_WRITE);
+            streamingUsersMap.put(email, socketChannel);
+
+            System.out.println("Streaming socket channel : " + socketChannel);
+
+
+        } else if (userMessage.startsWith("stop")) {
+
+            String email = SpotifyClientRepository.getEmail(socketChannel);
+
+            System.out.println("User wants to stop streaming :" + email);
+
+            SocketChannel streamingChannel = streamingUsersMap.get(email);
+
+            stopStreaming.add(streamingChannel);
+
+            writeToChannel("Stopping streaming in a moment ...".getBytes(StandardCharsets.UTF_8), socketChannel);
+
 
         } else {
 
@@ -228,7 +278,6 @@ public class SpotifyServer implements AutoCloseable {
             System.out.println("Server replied to client command" + userMessage);
 
             buffer.clear();
-
         }
 
     }

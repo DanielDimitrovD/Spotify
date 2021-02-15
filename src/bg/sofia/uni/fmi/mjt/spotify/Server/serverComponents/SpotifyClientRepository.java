@@ -17,7 +17,7 @@ import java.util.Map;
 public class SpotifyClientRepository {
 
     private final Map<String, String> clientCredentials = new HashMap<>();
-    private final Map<SocketChannel, String> loggedUsers = new HashMap<>();
+    private static final Map<SocketChannel, String> loggedUsers = new HashMap<>();
     private final Gson gson = new Gson();
 
     private final Path credentialsFile;
@@ -130,7 +130,7 @@ public class SpotifyClientRepository {
                 .getBytes(StandardCharsets.UTF_8);
     }
 
-    public String getEmail(SocketChannel userChannel) {
+    public static String getEmail(SocketChannel userChannel) {
         return loggedUsers.get(userChannel);
     }
 
