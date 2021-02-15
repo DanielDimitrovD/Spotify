@@ -157,8 +157,8 @@ public class SpotifyServer implements AutoCloseable {
         buffer.flip();
 
         try {
-
             socketChannel.write(buffer);
+            socketChannel.close();
 
         } catch (Exception e) {
             e.printStackTrace();

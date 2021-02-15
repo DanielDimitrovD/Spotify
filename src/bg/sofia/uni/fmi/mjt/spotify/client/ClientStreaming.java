@@ -79,7 +79,6 @@ public class ClientStreaming implements Runnable {
 
 //                System.out.println("received bytes:" + receivedBytes);
 
-
                 if (r == 1) {
                     dataLine.close();
                     break;
@@ -87,7 +86,6 @@ public class ClientStreaming implements Runnable {
 
                 dataLine.write(bytes, 0, bytes.length);
             }
-
 
         } catch (Exception e) {
             e.printStackTrace();

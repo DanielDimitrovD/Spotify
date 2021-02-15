@@ -49,6 +49,9 @@ public class SpotifyCommandExecutor {
 
         String email = spotifyClientRepository.getEmail(userSocketChannel);
 
+
+        //TODO fix registration
+
         if (spotifyClientRepository.isLoggedIn(userSocketChannel)) {
             switch (command.get()) {
                 case SEARCH -> reply = search(tokens);

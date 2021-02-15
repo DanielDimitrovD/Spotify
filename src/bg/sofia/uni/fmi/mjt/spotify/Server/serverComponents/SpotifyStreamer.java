@@ -34,6 +34,9 @@ public class SpotifyStreamer {
     private Map<String, String> songMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 
+    private Map<String, Long> songSize = new HashMap<>();
+
+
     public SpotifyStreamer(String musicFolderURL) {
         this.musicFolderURL = musicFolderURL;
         initializeSongMap();
@@ -84,12 +87,17 @@ public class SpotifyStreamer {
             for (String song : songsNames) {
 //                songsMap.put(i++, song + ".wav");
 
+                String songPath = String.format("%s%s.wav", musicFolderURL, song);
 
                 //TODO experimental
-                songMap.put(song, song + ".wav");
+                songMap.put(song, songPath);
 
+                long songSizeInBytes = Files.size(Path.of(songPath));
+
+                songSize.put(songPath, songSizeInBytes);
             }
 
+            System.out.println("song size map :" + songSize.toString());
 
         } catch (Exception e) {
             // TODO add exception
@@ -113,11 +121,6 @@ public class SpotifyStreamer {
         }
     }
 
-//    public void setSongForUser(SocketChannel userChannel, int songIndex) {
-//        userToSongMap.put(userChannel, songIndex);
-//
-//    }
-
     public void setSongForUser(SocketChannel userChannel, String[] song) {
 
         List<String> matchedSongs = searchSongs(song);
@@ -138,7 +141,7 @@ public class SpotifyStreamer {
 
         // TODO experimental
 
-        String songAbsolutePath = musicFolderURL + songMap.get(userSongMap.get(userSocketChannel));
+        String songAbsolutePath = songMap.get(userSongMap.get(userSocketChannel));
 
         System.out.println("Song path:" + songAbsolutePath);
 
@@ -181,14 +184,16 @@ public class SpotifyStreamer {
     public byte[] readMusicChunk(SocketChannel socketChannel) throws IOException, UnsupportedAudioFileException {
         songCurrentBytesMap.putIfAbsent(socketChannel, 0L);
 
-
         String userSong = userSongMap.get(socketChannel);
+
+        System.out.println("user song: " + userSong);
 
         String songName = songMap.get(userSong);
 
 
-        String songAbsolutePath = musicFolderURL + songName;
+        System.out.println("user song name:" + songName);
 
+        String songAbsolutePath = songName;
 
         try (AudioInputStream stream = AudioSystem.getAudioInputStream(new File(songAbsolutePath))) {
 

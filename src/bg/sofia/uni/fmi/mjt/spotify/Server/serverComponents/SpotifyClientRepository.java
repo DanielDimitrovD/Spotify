@@ -126,7 +126,7 @@ public class SpotifyClientRepository {
         clientCredentials.put(email, password);
         writeCredentialsToJson();
 
-        return String.format("Account with email %s already registered. Please try another email%n", email)
+        return String.format("Account with email %s successfully registered.%n", email)
                 .getBytes(StandardCharsets.UTF_8);
     }
 
