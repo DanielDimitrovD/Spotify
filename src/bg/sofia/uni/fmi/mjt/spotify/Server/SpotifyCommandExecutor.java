@@ -58,8 +58,6 @@ public class SpotifyCommandExecutor {
                 case CREATE_PLAYLIST -> reply = createPlaylist(email, tokens);
                 case ADD_SONG_TO -> reply = addSongToPlaylist(email, tokens);
                 case SHOW_PLAYLIST -> reply = showPlaylist(email, tokens);
-                //           case PLAY_SONG -> reply = playSong(userSocketChannel);
-//                case STOP -> reply = stop();
                 case DISCONNECT -> reply = disconnect(userSocketChannel);
                 default -> reply = String.format("Unknown command.%n").getBytes(StandardCharsets.UTF_8);
             }

@@ -47,9 +47,7 @@ public class SpotifySongRepository {
                     .filter(matchWordsToSong)
                     .collect(Collectors.toList());
         } catch (Exception e) {
-            //TODO add exception
-            e.printStackTrace();
-            return null;
+            throw new RuntimeException("Could not search songs in Song Repository", e);
         }
     }
 

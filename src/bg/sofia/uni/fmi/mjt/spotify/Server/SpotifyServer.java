@@ -40,26 +40,47 @@ public class SpotifyServer implements AutoCloseable {
     private Map<String, SocketChannel> userToChannel = new HashMap<>();
     private Set<SocketChannel> candidatesToStopStreaming = new HashSet<>();
 
-    public SpotifyServer(int port, Path credentialsFile, Path playlistFile, String musicFolderURL) {
+//    public SpotifyServer(int port, Path credentialsFile, Path playlistFile, String musicFolderURL) {
+//
+//        System.out.println("Spotify server constructor :" + playlistFile);
+//
+//        this.port = port;
+//        this.spotifyStreamer = new SpotifyStreamer(musicFolderURL);
+//        this.commandInterpreter = new SpotifyCommandExecutor(credentialsFile, playlistFile);
+//        initialServerConfiguration();
+//
+//        // allocate byte buffer
+//        buffer = ByteBuffer.allocate(BUFFER_SIZE);
+//    }
 
-        System.out.println("Spotify server constructor :" + playlistFile);
+    public SpotifyServer(int port, Selector selector, SpotifyStreamer spotifyStreamer, SpotifyCommandExecutor commandInterpreter) {
+
+//        System.out.println("Spotify server constructor :" + playlistFile);
 
         this.port = port;
-        this.spotifyStreamer = new SpotifyStreamer(musicFolderURL);
-        this.commandInterpreter = new SpotifyCommandExecutor(credentialsFile, playlistFile);
+        this.selector = selector;
+
+        this.spotifyStreamer = spotifyStreamer;
+        this.commandInterpreter = commandInterpreter;
         initialServerConfiguration();
 
         // allocate byte buffer
         buffer = ByteBuffer.allocate(BUFFER_SIZE);
     }
 
-    public static void main(String[] args) {
+
+    public static void main(String[] args) throws IOException {
 
         final String musicFolderURL = "D:\\4-course\\songs\\";
         final Path credentials = Path.of("credentials.json");
         final Path playlists = Path.of("playlists.json");
 
-        try (var wishListServer = new SpotifyServer(1234, credentials, playlists, musicFolderURL)) {
+        final SpotifyStreamer spotifyStreamer = new SpotifyStreamer(musicFolderURL);
+        final SpotifyCommandExecutor spotifyCommandExecutor = new SpotifyCommandExecutor(credentials, playlists);
+
+        final Selector selector = Selector.open();
+
+        try (var wishListServer = new SpotifyServer(1234, selector, spotifyStreamer, spotifyCommandExecutor)) {
             wishListServer.start();
 
         } catch (Exception e) {

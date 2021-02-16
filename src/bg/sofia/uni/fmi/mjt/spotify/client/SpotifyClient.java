@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Scanner;
 import java.util.concurrent.ExecutorService;
@@ -48,6 +49,24 @@ public class SpotifyClient {
                         "10. Papi Hans - Hubavo mi stava Х2 (ft. Sando & Mando)")));
     }
 
+    private byte[] readMessage(SocketChannel socketChannel) throws IOException {
+        buffer.clear();
+        socketChannel.read(buffer);
+        buffer.flip();
+
+        byte[] byteArray = new byte[buffer.remaining()];
+        buffer.get(byteArray);
+
+        return byteArray;
+    }
+
+    private void writeToChannel(byte[] bytes, SocketChannel socketChannel) throws IOException {
+        buffer.clear();
+        buffer.put(bytes);
+        buffer.flip();
+        socketChannel.write(buffer);
+    }
+
     public void startClient() {
 
         try (SocketChannel socketChannel = SocketChannel.open()) {
@@ -70,25 +89,11 @@ public class SpotifyClient {
                         continue;
                     }
 
-                    if (isStreaming) {
-                        System.out.println("Please stop music first with command stop!");
-                        continue;
-                    }
-
-                    executorService.execute(new ClientStreaming(message, email));
+                    executorService.execute(new SpotifyClientStreamingRunnable(message, email));
                     isStreaming = true;
                 } else {
-                    buffer.clear();
-                    buffer.put(message.getBytes());
-                    buffer.flip();
-                    socketChannel.write(buffer);
-
-                    buffer.clear();
-                    socketChannel.read(buffer);
-                    buffer.flip();
-
-                    byte[] byteArray = new byte[buffer.remaining()];
-                    buffer.get(byteArray);
+                    writeToChannel(message.getBytes(StandardCharsets.UTF_8), socketChannel);
+                    byte[] byteArray = readMessage(socketChannel);
 
                     String reply = new String(byteArray, "UTF-8");
 

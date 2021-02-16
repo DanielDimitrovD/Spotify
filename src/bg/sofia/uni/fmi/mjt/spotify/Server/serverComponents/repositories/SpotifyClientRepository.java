@@ -30,7 +30,7 @@ public class SpotifyClientRepository {
     }
 
     public static void main(String[] args) {
-        SpotifyClientRepository spotifyClientRepository = new SpotifyClientRepository(Path.of("credentials.json"));
+        SpotifyClientRepository spotifyClientRepository = new SpotifyClientRepository(Path.of("D"));
     }
 
     private void setUpClientCredentials() {

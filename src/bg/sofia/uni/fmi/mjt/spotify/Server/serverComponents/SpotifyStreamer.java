@@ -3,7 +3,7 @@ package bg.sofia.uni.fmi.mjt.spotify.Server.serverComponents;
 import bg.sofia.uni.fmi.mjt.spotify.Server.dto.AudioFormatDTO;
 import bg.sofia.uni.fmi.mjt.spotify.Server.serverComponents.repositories.SpotifySongRepository;
 import bg.sofia.uni.fmi.mjt.spotify.Server.serverComponents.repositories.SpotifyStatistics;
-import bg.sofia.uni.fmi.mjt.spotify.Server.serverComponents.repositories.exceptions.AudioFormatDTOExcepton;
+import bg.sofia.uni.fmi.mjt.spotify.Server.serverComponents.repositories.exceptions.AudioFormatDTOException;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
@@ -85,7 +85,7 @@ public class SpotifyStreamer {
 
             return objectToByteArray(dto);
         } catch (IOException | UnsupportedAudioFileException e) {
-            throw new AudioFormatDTOExcepton("Could not marshall AudioFormatDTO");
+            throw new AudioFormatDTOException("Could not marshall AudioFormatDTO");
         }
     }
 

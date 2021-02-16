@@ -1,7 +1,7 @@
 package bg.sofia.uni.fmi.mjt.spotify.Server.serverComponents.repositories.exceptions;
 
-public class AudioFormatDTOExcepton extends RuntimeException {
-    public AudioFormatDTOExcepton(String msg) {
+public class AudioFormatDTOException extends RuntimeException {
+    public AudioFormatDTOException(String msg) {
         super(msg);
     }
 }
