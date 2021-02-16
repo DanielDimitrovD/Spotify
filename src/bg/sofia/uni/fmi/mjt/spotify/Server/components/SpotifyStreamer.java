@@ -1,9 +1,9 @@
 package bg.sofia.uni.fmi.mjt.spotify.Server.components;
 
-import bg.sofia.uni.fmi.mjt.spotify.Server.dto.AudioFormatDTO;
 import bg.sofia.uni.fmi.mjt.spotify.Server.components.repositories.SpotifySongRepository;
 import bg.sofia.uni.fmi.mjt.spotify.Server.components.repositories.SpotifyStatistics;
 import bg.sofia.uni.fmi.mjt.spotify.Server.components.repositories.exceptions.AudioFormatDTOException;
+import bg.sofia.uni.fmi.mjt.spotify.Server.dto.AudioFormatDTO;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
@@ -85,7 +85,7 @@ public class SpotifyStreamer {
 
             return objectToByteArray(dto);
         } catch (IOException | UnsupportedAudioFileException e) {
-            throw new AudioFormatDTOException("Could not marshall AudioFormatDTO");
+            throw new AudioFormatDTOException("Could not marshall AudioFormatDTO", e);
         }
     }
 
@@ -98,10 +98,9 @@ public class SpotifyStreamer {
 
             return bos.toByteArray();
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new RuntimeException("Could not convert object to byte array");
         }
 
-        return null;
     }
 
     public byte[] readMusicChunk(SocketChannel socketChannel) throws IOException, UnsupportedAudioFileException {

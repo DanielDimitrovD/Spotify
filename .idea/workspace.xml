@@ -2,19 +2,10 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="596b398e-2482-41a0-91d7-6546410c5cf2" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/src/bg/sofia/uni/fmi/mjt/spotify/Server/components/repositories/exceptions/SongRepositoryAccessException.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Spotify/bg/sofia/uni/fmi/mjt/spotify/Server/SpotifyCommandExecutor$1.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Spotify/bg/sofia/uni/fmi/mjt/spotify/Server/SpotifyCommandExecutor.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Spotify/bg/sofia/uni/fmi/mjt/spotify/Server/SpotifyServer.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Spotify/bg/sofia/uni/fmi/mjt/spotify/Server/SpotifyServer.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Spotify/bg/sofia/uni/fmi/mjt/spotify/Server/components/repositories/SpotifyClientRepository$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Spotify/bg/sofia/uni/fmi/mjt/spotify/Server/components/repositories/SpotifyClientRepository$1.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Spotify/bg/sofia/uni/fmi/mjt/spotify/Server/components/repositories/SpotifyClientRepository.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Spotify/bg/sofia/uni/fmi/mjt/spotify/Server/components/repositories/SpotifyClientRepository.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Spotify/bg/sofia/uni/fmi/mjt/spotify/Server/components/repositories/SpotifyPlaylistRepository$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Spotify/bg/sofia/uni/fmi/mjt/spotify/Server/components/repositories/SpotifyPlaylistRepository$1.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Spotify/bg/sofia/uni/fmi/mjt/spotify/Server/components/repositories/SpotifyPlaylistRepository.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Spotify/bg/sofia/uni/fmi/mjt/spotify/Server/components/repositories/SpotifyPlaylistRepository.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/test/Spotify/bg/sofia/uni/fmi/mjt/spotify/Server/SpotifyServerTest.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/test/Spotify/bg/sofia/uni/fmi/mjt/spotify/Server/SpotifyServerTest.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/test/Spotify/bg/sofia/uni/fmi/mjt/spotify/Server/components/repositories/SpotifyPlaylistRepositoryTest.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/test/Spotify/bg/sofia/uni/fmi/mjt/spotify/Server/components/repositories/SpotifyPlaylistRepositoryTest.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/bg/sofia/uni/fmi/mjt/spotify/Server/components/repositories/SpotifySongRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/bg/sofia/uni/fmi/mjt/spotify/Server/components/repositories/SpotifySongRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/bg/sofia/uni/fmi/mjt/spotify/Server/components/repositories/SpotifyPlaylistRepositoryTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/test/bg/sofia/uni/fmi/mjt/spotify/Server/components/repositories/SpotifyPlaylistRepositoryTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/bg/sofia/uni/fmi/mjt/spotify/Server/components/SpotifyCommandExecutor.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/bg/sofia/uni/fmi/mjt/spotify/Server/components/SpotifyCommandExecutor.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/bg/sofia/uni/fmi/mjt/spotify/Server/components/SpotifyStreamer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/bg/sofia/uni/fmi/mjt/spotify/Server/components/SpotifyStreamer.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/bg/sofia/uni/fmi/mjt/spotify/Server/components/repositories/exceptions/AudioFormatDTOException.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/bg/sofia/uni/fmi/mjt/spotify/Server/components/repositories/exceptions/AudioFormatDTOException.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -277,7 +268,7 @@
       <workItem from="1613373871113" duration="1259000" />
       <workItem from="1613391470173" duration="3432000" />
       <workItem from="1613397057670" duration="22647000" />
-      <workItem from="1613453572937" duration="32942000" />
+      <workItem from="1613453572937" duration="33260000" />
     </task>
     <servers />
   </component>
@@ -297,7 +288,7 @@
     <SUITE FILE_PATH="coverage/Spotify$SpotifyPlaylistRepositoryTest_testShowPlaylistInfoCommand.ic" NAME="SpotifyPlaylistRepositoryTest.testShowPlaylistInfoCommand Coverage Results" MODIFIED="1613464778924" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false">
       <FILTER>bg.sofia.uni.fmi.mjt.spotify.Server.serverComponents.repositories.*</FILTER>
     </SUITE>
-    <SUITE FILE_PATH="coverage/Spotify$SpotifyServerTest.ic" NAME="SpotifyServerTest Coverage Results" MODIFIED="1613487629983" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false">
+    <SUITE FILE_PATH="coverage/Spotify$SpotifyServerTest.ic" NAME="SpotifyServerTest Coverage Results" MODIFIED="1613488098874" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false">
       <FILTER>bg.sofia.uni.fmi.mjt.spotify.Server.components.*</FILTER>
     </SUITE>
     <SUITE FILE_PATH="coverage/Spotify$SpotifyPlaylistRepositoryTest.ic" NAME="SpotifyPlaylistRepositoryTest Coverage Results" MODIFIED="1613464353190" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false">

@@ -73,13 +73,17 @@ public class SpotifyCommandExecutor {
 
     private byte[] search(String[] tokens) {
 
-        String[] t = new String[tokens.length - 1];
+        String[] song = new String[tokens.length - 1];
+
+        final int SEARCH_COMMAND_POSITION = 1;
+
         int j = 0;
-        for (int i = 1; i < tokens.length; i++) {
-            t[j++] = tokens[i];
+
+        for (int i = SEARCH_COMMAND_POSITION; i < tokens.length; i++) {
+            song[j++] = tokens[i];
         }
 
-        List<String> searchSongs = SpotifySongRepository.searchSongs((t));
+        List<String> searchSongs = SpotifySongRepository.searchSongs((song));
 
         System.out.printf("Matched songs: %s", searchSongs.toString());
 
