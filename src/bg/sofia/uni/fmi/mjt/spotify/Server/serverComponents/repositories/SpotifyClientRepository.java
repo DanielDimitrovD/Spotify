@@ -43,7 +43,7 @@ public class SpotifyClientRepository {
                 clientCredentials.putAll(users);
             }
 
-            System.out.println(users.toString());
+//            System.out.println(users.toString());
         } catch (IOException e) {
             //TODO add exception
             throw new UnsupportedOperationException();
