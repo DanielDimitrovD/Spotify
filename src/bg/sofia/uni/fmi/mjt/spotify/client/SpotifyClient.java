@@ -93,7 +93,8 @@ public class SpotifyClient {
                     } else if (reply.contains(STOP_STREAMING_MESSAGE)) {
                         this.isStreaming = false;
                     } else if (reply.contains(DISCONNECT_MESSAGE)) {
-                        executorService.shutdown();
+                        executorService.shutdownNow();
+                        return;
                     }
                 }
             }

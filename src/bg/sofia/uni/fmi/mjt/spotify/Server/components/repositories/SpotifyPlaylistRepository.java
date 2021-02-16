@@ -148,6 +148,13 @@ public class SpotifyPlaylistRepository {
 
     public byte[] showPlaylist(String email, String[] tokens) {
         final int SHOW_PLAYLIST_PLAYLIST_NAME_INDEX = 1;
+        final int SHOW_PLAYLIST_PARAMETERS = 2;
+
+        if (tokens.length != SHOW_PLAYLIST_PARAMETERS) {
+            final String errorMessage = String.format(" Show-playlist command accepts one parameter:" +
+                                                      "show-playlist <name>%n");
+            return errorMessage.getBytes(StandardCharsets.UTF_8);
+        }
 
         String playlistName = tokens[SHOW_PLAYLIST_PLAYLIST_NAME_INDEX];
 
