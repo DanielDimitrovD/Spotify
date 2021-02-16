@@ -4,6 +4,7 @@ import bg.sofia.uni.fmi.mjt.spotify.Server.components.SpotifyCommandExecutor;
 import bg.sofia.uni.fmi.mjt.spotify.Server.components.SpotifyStreamer;
 import bg.sofia.uni.fmi.mjt.spotify.Server.components.repositories.SpotifyClientRepository;
 import bg.sofia.uni.fmi.mjt.spotify.Server.components.repositories.SpotifySongRepository;
+import bg.sofia.uni.fmi.mjt.spotify.serverException.ServerStartupException;
 
 import javax.sound.sampled.UnsupportedAudioFileException;
 import java.io.IOException;
@@ -15,6 +16,7 @@ import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -62,6 +64,23 @@ public class SpotifyServer implements AutoCloseable {
 
         } catch (Exception e) {
             logger.log(Level.SEVERE, "Exception occurred while trying to initialize the server", e);
+        }
+    }
+
+    public static void main(String[] args) throws IOException {
+
+        final String musicFolderURL = "D:\\4-course\\songs\\";
+        final Path credentials = Path.of("credentials.json");
+        final Path playlists = Path.of("playlists.json");
+
+        final SpotifyStreamer spotifyStreamer = new SpotifyStreamer(musicFolderURL);
+        final SpotifyCommandExecutor spotifyCommandExecutor = new SpotifyCommandExecutor(credentials, playlists);
+
+        try (var wishListServer = new SpotifyServer(1234, spotifyStreamer, spotifyCommandExecutor)) {
+            wishListServer.start();
+
+        } catch (Exception e) {
+            throw new ServerStartupException("Could not initialize server with these arguments. Please validate arguments.");
         }
     }
 

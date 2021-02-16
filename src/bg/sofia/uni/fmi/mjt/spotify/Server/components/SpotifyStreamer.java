@@ -101,6 +101,8 @@ public class SpotifyStreamer {
 
             byte[] bytes = new byte[BUFFER_SIZE];
 
+            stream.skip(currentPositionInBytes);
+
             int r = stream.read(bytes);
 
             int availableBytes = r < BUFFER_SIZE ? r : BUFFER_SIZE;
