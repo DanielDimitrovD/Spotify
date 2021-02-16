@@ -1,4 +1,4 @@
-package bg.sofia.uni.fmi.mjt.spotify.Server;
+package bg.sofia.uni.fmi.mjt.spotify.Server.components;
 
 import bg.sofia.uni.fmi.mjt.spotify.Server.components.repositories.SpotifyClientRepository;
 import bg.sofia.uni.fmi.mjt.spotify.Server.components.repositories.SpotifyPlaylistRepository;

@@ -1,5 +1,7 @@
 package bg.sofia.uni.fmi.mjt.spotify.Server.components.repositories;
 
+import bg.sofia.uni.fmi.mjt.spotify.Server.components.repositories.exceptions.PlaylistInitializationException;
+import bg.sofia.uni.fmi.mjt.spotify.Server.components.repositories.exceptions.PlaylistOutputException;
 import bg.sofia.uni.fmi.mjt.spotify.Server.dto.Playlist;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -31,7 +33,7 @@ public class SpotifyPlaylistRepository {
 
     private void initializeUserPlaylist() {
 
-        System.out.println("Initialize User Playlist method:" + playlistFile);
+//        System.out.println("Initialize User Playlist method:" + playlistFile);
 
         try {
             String json = Files.readString(playlistFile);
@@ -43,13 +45,13 @@ public class SpotifyPlaylistRepository {
             }
 
         } catch (IOException e) {
-            //TODO add concrete exception
+
             try {
                 userPlaylistMap = new HashMap<>();
                 Files.createFile(playlistFile);
 
             } catch (Exception e1) {
-                e1.printStackTrace();
+                throw new PlaylistInitializationException("Could not initialize users playlists", e1);
             }
         }
     }
@@ -62,15 +64,19 @@ public class SpotifyPlaylistRepository {
         final int ADD_SONG_TO_PLAYLIST_PARAMETERS = 3;
 
         if (tokens.length < ADD_SONG_TO_PLAYLIST_PARAMETERS) {
-            return "command format : add-song-to <name_of_the_playlist> <song>".getBytes(StandardCharsets.UTF_8);
+            return String.format("command format : add-song-to <name_of_the_playlist> <song>%n")
+                    .getBytes(StandardCharsets.UTF_8);
         }
 
         if (!validateArguments(tokens)) {
-            throw new IllegalArgumentException("parameter in method login is null");
+            return String.format("Parameter/s in add-song-to <playlist> command is/are null!%n")
+                    .getBytes(StandardCharsets.UTF_8);
         }
 
         String playlistName = tokens[NAME_OF_PLAYLIST_INDEX];
-        String song = Arrays.stream(tokens).skip(NAME_OF_SONG_INDEX_START).collect(Collectors.joining(" "));
+        String song = Arrays.stream(tokens)
+                .skip(NAME_OF_SONG_INDEX_START)
+                .collect(Collectors.joining(" "));
 
         userPlaylistMap.putIfAbsent(email, new HashMap<>());
 
@@ -110,10 +116,9 @@ public class SpotifyPlaylistRepository {
         try {
             Files.writeString(playlistFile, toJson, StandardOpenOption.CREATE, StandardOpenOption.WRITE);
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new PlaylistOutputException("Could not write playlist to playlist config file", e);
         }
     }
-
 
     public byte[] createPlaylist(String email, String[] tokens) {
 
@@ -140,8 +145,9 @@ public class SpotifyPlaylistRepository {
             Files.writeString(playlistFile, toJson, StandardOpenOption.CREATE, StandardOpenOption.WRITE);
             return String.format("Playlist successfully created%n").getBytes(StandardCharsets.UTF_8);
         } catch (IOException e) {
-            e.printStackTrace();
-            return String.format("Playlist not created error%n").getBytes(StandardCharsets.UTF_8);
+//            e.printStackTrace();
+//            return String.format("Playlist not created error%n").getBytes(StandardCharsets.UTF_8);
+            throw new PlaylistInitializationException("Could not write changes to playlist config file", e);
         }
     }
 
