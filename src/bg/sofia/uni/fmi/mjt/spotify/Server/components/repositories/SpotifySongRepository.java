@@ -1,5 +1,7 @@
 package bg.sofia.uni.fmi.mjt.spotify.Server.components.repositories;
 
+import bg.sofia.uni.fmi.mjt.spotify.Server.components.repositories.exceptions.SongAccessException;
+import bg.sofia.uni.fmi.mjt.spotify.Server.components.repositories.exceptions.SongRepositoryAccessException;
 import bg.sofia.uni.fmi.mjt.spotify.Server.components.repositories.exceptions.SongRepositoryInitializationException;
 
 import java.nio.file.Files;
@@ -27,7 +29,7 @@ public class SpotifySongRepository {
                     .map(s -> s.getFileName().toString().split(".wav")[0])
                     .anyMatch(p -> p.equalsIgnoreCase(song));
         } catch (Exception e) {
-            throw new RuntimeException("I/O error trying to search for a song matching user parameter");
+            throw new SongRepositoryAccessException("I/O error trying to access song repository", e);
         }
     }
 
@@ -47,7 +49,7 @@ public class SpotifySongRepository {
                     .filter(matchWordsToSong)
                     .collect(Collectors.toList());
         } catch (Exception e) {
-            throw new RuntimeException("Could not search songs in Song Repository", e);
+            throw new SongRepositoryAccessException("I/O error trying to access song repository", e);
         }
     }
 
@@ -68,12 +70,11 @@ public class SpotifySongRepository {
                 long songSizeInBytes = Files.size(Path.of(songPath));
                 songSizeInBytesMap.put(songPath, songSizeInBytes);
             } catch (Exception e) {
-                throw new RuntimeException("I/O error when trying to read the size of a song");
+                throw new SongAccessException("Could not access song with path : " + songPath, e);
             }
         }
 
         System.out.println("song size map :" + songSizeInBytesMap.toString());
-
     }
 
     private List<String> getSongs() {

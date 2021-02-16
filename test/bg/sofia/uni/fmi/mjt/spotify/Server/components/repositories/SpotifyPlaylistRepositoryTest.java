@@ -100,7 +100,7 @@ public class SpotifyPlaylistRepositoryTest {
         byte[] response = spotifyPlaylistRepository.addSongToPlaylist(email, command.split("\\s+"));
         String responseReply = new String(response, "UTF-8");
 
-        String expected = String.format("command format : add-song-to <name_of_the_playlist> <song>");
+        String expected = String.format("command format : add-song-to <name_of_the_playlist> <song>%n");
 
         Assert.assertEquals("Expected illegal command format reply", expected, responseReply);
     }
