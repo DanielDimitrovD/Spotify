@@ -1,5 +1,7 @@
 package bg.sofia.uni.fmi.mjt.spotify.Server.components.repositories;
 
+import bg.sofia.uni.fmi.mjt.spotify.Server.components.repositories.exceptions.ClientRepositoryInitializationException;
+import bg.sofia.uni.fmi.mjt.spotify.Server.components.repositories.exceptions.ClientRepositoryOutputException;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
@@ -16,8 +18,8 @@ import java.util.Map;
 
 public class SpotifyClientRepository {
 
-    private final Map<String, String> clientCredentials = new HashMap<>();
     private static final Map<SocketChannel, String> loggedUsers = new HashMap<>();
+    private final Map<String, String> clientCredentials = new HashMap<>();
     private final Gson gson = new Gson();
 
     private final Path credentialsFile;
@@ -29,8 +31,8 @@ public class SpotifyClientRepository {
         setUpClientCredentials();
     }
 
-    public static void main(String[] args) {
-        SpotifyClientRepository spotifyClientRepository = new SpotifyClientRepository(Path.of("D"));
+    public static String getEmail(SocketChannel userChannel) {
+        return loggedUsers.get(userChannel);
     }
 
     private void setUpClientCredentials() {
@@ -43,10 +45,8 @@ public class SpotifyClientRepository {
                 clientCredentials.putAll(users);
             }
 
-//            System.out.println(users.toString());
         } catch (IOException e) {
-            //TODO add exception
-            throw new UnsupportedOperationException();
+            throw new ClientRepositoryInitializationException("I/O error when trying to initialize client repository", e);
         }
     }
 
@@ -66,7 +66,7 @@ public class SpotifyClientRepository {
         }
 
         if (!validateArguments(tokens)) {
-            throw new IllegalArgumentException("parameter in method login is null");
+            return String.format("Parameter/s in method login is/are null%n").getBytes(StandardCharsets.UTF_8);
         }
 
         String email = tokens[LOGIN_COMMAND_USERNAME_INDEX];
@@ -96,7 +96,7 @@ public class SpotifyClientRepository {
         try {
             Files.writeString(credentialsFile, toJson, StandardOpenOption.WRITE);
         } catch (IOException e) {
-            throw new UnsupportedOperationException();
+            throw new ClientRepositoryOutputException("Error with writing to client credentials file", e);
         }
     }
 
@@ -128,10 +128,6 @@ public class SpotifyClientRepository {
 
         return String.format("Account with email %s successfully registered.%n", email)
                 .getBytes(StandardCharsets.UTF_8);
-    }
-
-    public static String getEmail(SocketChannel userChannel) {
-        return loggedUsers.get(userChannel);
     }
 
     public boolean isLoggedIn(SocketChannel userChannel) {
