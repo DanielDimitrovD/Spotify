@@ -3,9 +3,21 @@
   <component name="ChangeListManager">
     <list default="true" id="596b398e-2482-41a0-91d7-6546410c5cf2" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/Spotify/bg/sofia/uni/fmi/mjt/spotify/Server/SpotifyServer.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Spotify/bg/sofia/uni/fmi/mjt/spotify/Server/SpotifyServer.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/Spotify/bg/sofia/uni/fmi/mjt/spotify/Server/components/SpotifyCommandExecutor$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Spotify/bg/sofia/uni/fmi/mjt/spotify/Server/components/SpotifyCommandExecutor$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/Spotify/bg/sofia/uni/fmi/mjt/spotify/Server/components/SpotifyCommandExecutor.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Spotify/bg/sofia/uni/fmi/mjt/spotify/Server/components/SpotifyCommandExecutor.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/Spotify/bg/sofia/uni/fmi/mjt/spotify/Server/components/SpotifyStreamer.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Spotify/bg/sofia/uni/fmi/mjt/spotify/Server/components/SpotifyStreamer.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/Spotify/bg/sofia/uni/fmi/mjt/spotify/Server/components/repositories/SpotifyPlaylistRepository.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Spotify/bg/sofia/uni/fmi/mjt/spotify/Server/components/repositories/SpotifyPlaylistRepository.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/Spotify/bg/sofia/uni/fmi/mjt/spotify/Server/components/repositories/exceptions/AudioFormatDTOException.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Spotify/bg/sofia/uni/fmi/mjt/spotify/Server/components/repositories/exceptions/AudioFormatDTOException.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/test/Spotify/bg/sofia/uni/fmi/mjt/spotify/Server/SpotifyServerTest.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/test/Spotify/bg/sofia/uni/fmi/mjt/spotify/Server/SpotifyServerTest.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/test/Spotify/bg/sofia/uni/fmi/mjt/spotify/Server/components/repositories/SpotifyClientRepositoryTest$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/test/Spotify/bg/sofia/uni/fmi/mjt/spotify/Server/components/repositories/SpotifyClientRepositoryTest$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/test/Spotify/bg/sofia/uni/fmi/mjt/spotify/Server/components/repositories/SpotifyClientRepositoryTest.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/test/Spotify/bg/sofia/uni/fmi/mjt/spotify/Server/components/repositories/SpotifyClientRepositoryTest.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/bg/sofia/uni/fmi/mjt/spotify/Server/SpotifyServer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/bg/sofia/uni/fmi/mjt/spotify/Server/SpotifyServer.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/bg/sofia/uni/fmi/mjt/spotify/Server/components/SpotifyCommandExecutor.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/bg/sofia/uni/fmi/mjt/spotify/Server/components/SpotifyCommandExecutor.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/bg/sofia/uni/fmi/mjt/spotify/Server/components/SpotifyStreamer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/bg/sofia/uni/fmi/mjt/spotify/Server/components/SpotifyStreamer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/bg/sofia/uni/fmi/mjt/spotify/Server/components/repositories/exceptions/AudioFormatDTOException.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/bg/sofia/uni/fmi/mjt/spotify/Server/components/repositories/exceptions/AudioFormatDTOException.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/bg/sofia/uni/fmi/mjt/spotify/Server/components/repositories/SpotifyPlaylistRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/bg/sofia/uni/fmi/mjt/spotify/Server/components/repositories/SpotifyPlaylistRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/bg/sofia/uni/fmi/mjt/spotify/Server/SpotifyServerTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/test/bg/sofia/uni/fmi/mjt/spotify/Server/SpotifyServerTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/bg/sofia/uni/fmi/mjt/spotify/Server/components/repositories/SpotifyClientRepositoryTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/test/bg/sofia/uni/fmi/mjt/spotify/Server/components/repositories/SpotifyClientRepositoryTest.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -146,7 +158,7 @@
       <recent name="bg.sofia.uni.fmi.mjt.spotify.Server" />
     </key>
   </component>
-  <component name="RunManager" selected="JUnit.SpotifyServerTest">
+  <component name="RunManager" selected="JUnit.SpotifyClientRepositoryTest">
     <configuration name="SpotifyClient" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="bg.sofia.uni.fmi.mjt.spotify.client.SpotifyClient" />
       <module name="Spotify" />
@@ -184,6 +196,21 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
+    <configuration name="SpotifyClientRepositoryTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="Spotify" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="bg.sofia.uni.fmi.mjt.spotify.Server.components.repositories.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="bg.sofia.uni.fmi.mjt.spotify.Server.components.repositories" />
+      <option name="MAIN_CLASS_NAME" value="bg.sofia.uni.fmi.mjt.spotify.Server.components.repositories.SpotifyClientRepositoryTest" />
+      <option name="TEST_OBJECT" value="class" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
     <configuration name="SpotifyServerTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="Spotify" />
       <extension name="coverage">
@@ -195,22 +222,6 @@
       <option name="PACKAGE_NAME" value="bg.sofia.uni.fmi.mjt.spotify.Server" />
       <option name="MAIN_CLASS_NAME" value="bg.sofia.uni.fmi.mjt.spotify.Server.SpotifyServerTest" />
       <option name="TEST_OBJECT" value="class" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="SpotifyServerTest.playSong" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
-      <module name="Spotify" />
-      <extension name="coverage">
-        <pattern>
-          <option name="PATTERN" value="bg.sofia.uni.fmi.mjt.spotify.Server.components.*" />
-          <option name="ENABLED" value="true" />
-        </pattern>
-      </extension>
-      <option name="PACKAGE_NAME" value="bg.sofia.uni.fmi.mjt.spotify.Server" />
-      <option name="MAIN_CLASS_NAME" value="bg.sofia.uni.fmi.mjt.spotify.Server.SpotifyServerTest" />
-      <option name="METHOD_NAME" value="playSong" />
-      <option name="TEST_OBJECT" value="method" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
@@ -231,18 +242,18 @@
     </configuration>
     <list>
       <item itemvalue="JUnit.SpotifyServerTest" />
-      <item itemvalue="JUnit.SpotifyServerTest.playSong" />
       <item itemvalue="Application.SpotifyServer" />
       <item itemvalue="Application.SpotifyClient" />
       <item itemvalue="JUnit.bg.sofia.uni.fmi.mjt.spotify.Server in Spotify" />
+      <item itemvalue="JUnit.SpotifyClientRepositoryTest" />
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="JUnit.SpotifyClientRepositoryTest" />
         <item itemvalue="JUnit.SpotifyServerTest" />
         <item itemvalue="JUnit.bg.sofia.uni.fmi.mjt.spotify.Server in Spotify" />
         <item itemvalue="Application.SpotifyClient" />
         <item itemvalue="Application.SpotifyServer" />
-        <item itemvalue="JUnit.SpotifyServerTest.playSong" />
       </list>
     </recent_temporary>
   </component>
@@ -268,7 +279,7 @@
       <workItem from="1613373871113" duration="1259000" />
       <workItem from="1613391470173" duration="3432000" />
       <workItem from="1613397057670" duration="22647000" />
-      <workItem from="1613453572937" duration="33260000" />
+      <workItem from="1613453572937" duration="35988000" />
     </task>
     <servers />
   </component>
@@ -288,7 +299,7 @@
     <SUITE FILE_PATH="coverage/Spotify$SpotifyPlaylistRepositoryTest_testShowPlaylistInfoCommand.ic" NAME="SpotifyPlaylistRepositoryTest.testShowPlaylistInfoCommand Coverage Results" MODIFIED="1613464778924" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false">
       <FILTER>bg.sofia.uni.fmi.mjt.spotify.Server.serverComponents.repositories.*</FILTER>
     </SUITE>
-    <SUITE FILE_PATH="coverage/Spotify$SpotifyServerTest.ic" NAME="SpotifyServerTest Coverage Results" MODIFIED="1613488098874" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false">
+    <SUITE FILE_PATH="coverage/Spotify$SpotifyServerTest.ic" NAME="SpotifyServerTest Coverage Results" MODIFIED="1613490614941" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false">
       <FILTER>bg.sofia.uni.fmi.mjt.spotify.Server.components.*</FILTER>
     </SUITE>
     <SUITE FILE_PATH="coverage/Spotify$SpotifyPlaylistRepositoryTest.ic" NAME="SpotifyPlaylistRepositoryTest Coverage Results" MODIFIED="1613464353190" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false">
@@ -300,11 +311,11 @@
     <SUITE FILE_PATH="coverage/Spotify$SpotifyServerTest_testLoginIntoSystem.ic" NAME="SpotifyServerTest.testLoginIntoSystem Coverage Results" MODIFIED="1613471211390" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false">
       <FILTER>bg.sofia.uni.fmi.mjt.spotify.Server.*</FILTER>
     </SUITE>
-    <SUITE FILE_PATH="coverage/Spotify$SpotifyClientRepositoryTest.ic" NAME="SpotifyClientRepositoryTest Coverage Results" MODIFIED="1613461488419" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false">
-      <FILTER>bg.sofia.uni.fmi.mjt.spotify.Server.serverComponents.repositories.*</FILTER>
-    </SUITE>
     <SUITE FILE_PATH="coverage/Spotify$SpotifyStatisticsTest_testUpdateSong.ic" NAME="SpotifyStatisticsTest.testUpdateSong Coverage Results" MODIFIED="1613465492952" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false">
       <FILTER>bg.sofia.uni.fmi.mjt.spotify.Server.serverComponents.repositories.*</FILTER>
+    </SUITE>
+    <SUITE FILE_PATH="coverage/Spotify$SpotifyClientRepositoryTest.ic" NAME="SpotifyClientRepositoryTest Coverage Results" MODIFIED="1613491138099" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false">
+      <FILTER>bg.sofia.uni.fmi.mjt.spotify.Server.components.repositories.*</FILTER>
     </SUITE>
   </component>
 </project>

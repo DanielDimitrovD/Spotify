@@ -32,9 +32,6 @@ public class SpotifyPlaylistRepository {
     }
 
     private void initializeUserPlaylist() {
-
-//        System.out.println("Initialize User Playlist method:" + playlistFile);
-
         try {
             String json = Files.readString(playlistFile);
 
@@ -145,8 +142,6 @@ public class SpotifyPlaylistRepository {
             Files.writeString(playlistFile, toJson, StandardOpenOption.CREATE, StandardOpenOption.WRITE);
             return String.format("Playlist successfully created%n").getBytes(StandardCharsets.UTF_8);
         } catch (IOException e) {
-//            e.printStackTrace();
-//            return String.format("Playlist not created error%n").getBytes(StandardCharsets.UTF_8);
             throw new PlaylistInitializationException("Could not write changes to playlist config file", e);
         }
     }

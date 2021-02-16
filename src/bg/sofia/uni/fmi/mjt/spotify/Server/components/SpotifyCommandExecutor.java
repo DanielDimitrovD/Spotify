@@ -23,8 +23,6 @@ public class SpotifyCommandExecutor {
     public SpotifyCommandExecutor(Path credentialsFile, Path playlistFile) {
         this.spotifyClientRepository = new SpotifyClientRepository(credentialsFile);
         this.spotifyPlaylistRepository = new SpotifyPlaylistRepository(playlistFile);
-
-        System.out.println("Spotify Command Interpreter constructor : " + playlistFile);
     }
 
     public byte[] interpretCommand(String userMessage, SocketChannel userSocketChannel) {
@@ -84,8 +82,6 @@ public class SpotifyCommandExecutor {
         }
 
         List<String> searchSongs = SpotifySongRepository.searchSongs((song));
-
-        System.out.printf("Matched songs: %s", searchSongs.toString());
 
         if (searchSongs.isEmpty()) {
             return String.format("No songs containing %s found.%n", tokens.toString()).getBytes(StandardCharsets.UTF_8);

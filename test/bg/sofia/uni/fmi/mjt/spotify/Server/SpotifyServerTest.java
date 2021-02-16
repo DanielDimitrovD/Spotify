@@ -240,7 +240,6 @@ public class SpotifyServerTest {
              PrintWriter out = new PrintWriter(socket.getOutputStream(), true)) {
             System.out.println("Client " + socket + " connected to server");
 
-
             for (String command : commands) {
                 out.println(command);
 

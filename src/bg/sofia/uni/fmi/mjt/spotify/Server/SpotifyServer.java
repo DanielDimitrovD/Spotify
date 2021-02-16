@@ -4,7 +4,6 @@ import bg.sofia.uni.fmi.mjt.spotify.Server.components.SpotifyCommandExecutor;
 import bg.sofia.uni.fmi.mjt.spotify.Server.components.SpotifyStreamer;
 import bg.sofia.uni.fmi.mjt.spotify.Server.components.repositories.SpotifyClientRepository;
 import bg.sofia.uni.fmi.mjt.spotify.Server.components.repositories.SpotifySongRepository;
-import bg.sofia.uni.fmi.mjt.spotify.serverException.ServerStartupException;
 
 import javax.sound.sampled.UnsupportedAudioFileException;
 import java.io.IOException;
@@ -16,17 +15,18 @@ import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Path;
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 public class SpotifyServer implements AutoCloseable {
 
     public static final int SERVER_PORT = 7777;
     public static final String SERVER_HOST = "localhost";
+    public static final Logger logger = Logger.getLogger("Spotify Logger");
     private static final int BUFFER_SIZE = 1_024;
     private static final int STOP_SIGNAL_BYTE_SIZE = 1;
-
     private final int port;
     private boolean runServer = true;
 
@@ -41,40 +41,15 @@ public class SpotifyServer implements AutoCloseable {
     private Map<String, SocketChannel> userToChannel = new HashMap<>();
     private Set<SocketChannel> candidatesToStopStreaming = new HashSet<>();
 
-    private String lastUserCommand;
-
     public SpotifyServer(int port, SpotifyStreamer spotifyStreamer, SpotifyCommandExecutor commandInterpreter) {
-
-//        System.out.println("Spotify server constructor :" + playlistFile);
-
         this.port = port;
-
         this.spotifyStreamer = spotifyStreamer;
         this.commandInterpreter = commandInterpreter;
         initialServerConfiguration();
 
-        // allocate byte buffer
         buffer = ByteBuffer.allocate(BUFFER_SIZE);
     }
 
-
-    public static void main(String[] args) throws IOException {
-
-        final String musicFolderURL = "D:\\4-course\\songs\\";
-        final Path credentials = Path.of("credentials.json");
-        final Path playlists = Path.of("playlists.json");
-
-        final SpotifyStreamer spotifyStreamer = new SpotifyStreamer(musicFolderURL);
-        final SpotifyCommandExecutor spotifyCommandExecutor = new SpotifyCommandExecutor(credentials, playlists);
-
-        try (var wishListServer = new SpotifyServer(1234, spotifyStreamer, spotifyCommandExecutor)) {
-            wishListServer.start();
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new ServerStartupException("Could not initialize server with these arguments. Please validate arguments.");
-        }
-    }
 
     private void initialServerConfiguration() {
         try {
@@ -83,11 +58,10 @@ public class SpotifyServer implements AutoCloseable {
             serverSocketChannel.configureBlocking(false);
 
             selector = Selector.open();
-            // register selector to channel
             serverSocketChannel.register(selector, SelectionKey.OP_ACCEPT);
 
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.log(Level.SEVERE, "Exception occurred while trying to initialize the server", e);
         }
     }
 
@@ -121,7 +95,7 @@ public class SpotifyServer implements AutoCloseable {
                     keyIterator.remove();
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+                logger.log(Level.SEVERE, "Exception occurred while reading a channel from a key", e);
             }
         }
     }
@@ -135,7 +109,7 @@ public class SpotifyServer implements AutoCloseable {
         try {
             channel.write(buffer);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.log(Level.SEVERE, "Exception occurred while writing bytes to a channel", e);
             channel.close();
         }
 
@@ -145,14 +119,10 @@ public class SpotifyServer implements AutoCloseable {
     private void stopStreamingToChannelCleanup(SocketChannel socketChannel) throws IOException {
         candidatesToStopStreaming.remove(socketChannel);
         writeToChannel(new byte[]{-1}, socketChannel);
-
-        System.out.println("Stopping streaming to " + socketChannel);
         socketChannel.close();
     }
 
     private void write(SelectionKey key) throws IOException, UnsupportedAudioFileException {
-
-//        System.out.println("key is writable");
 
         SocketChannel socketChannel = (SocketChannel) key.channel();
 
@@ -176,7 +146,8 @@ public class SpotifyServer implements AutoCloseable {
         try {
             socketChannel.close();
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.log(Level.SEVERE, "Exception occurred while trying to end streaming in channel" + socketChannel
+                    , e);
         }
     }
 
@@ -219,24 +190,18 @@ public class SpotifyServer implements AutoCloseable {
         }
 
         spotifyStreamer.setSongForChannel(socketChannel, songName);
-        System.out.println("want to stream music. Sending music info to client");
         byte[] bytes = spotifyStreamer.getAudioFormatHeaders(socketChannel);
 
         writeToChannel(bytes, socketChannel);
 
-        // preregister key
         key.interestOps(SelectionKey.OP_WRITE);
 
         userToChannel.put(email, socketChannel);
-
-        System.out.println("Streaming socket channel : " + socketChannel);
     }
 
 
     private void prepareChannelToStopStreaming(SocketChannel socketChannel) throws IOException {
         String email = SpotifyClientRepository.getEmail(socketChannel);
-
-        System.out.println("User wants to stop streaming :" + email);
 
         SocketChannel streamingChannel = userToChannel.get(email);
 
@@ -247,14 +212,14 @@ public class SpotifyServer implements AutoCloseable {
 
     private void read(SelectionKey key) throws IOException {
         SocketChannel socketChannel = (SocketChannel) key.channel();
-
-        System.out.println("Reading socket channel: " + socketChannel);
         int r = 0;
 
         try {
             r = socketChannel.read(buffer);
         } catch (SocketException e) {
             socketChannel.close();
+            logger.log(Level.SEVERE, "Exception occurred while trying to read from socket channel " +
+                                     socketChannel, e);
         }
 
         if (r <= 0) {
@@ -265,7 +230,6 @@ public class SpotifyServer implements AutoCloseable {
         byte[] responseBytes = readFromBuffer();
 
         String userMessage = new String(responseBytes, "UTF-8");
-        lastUserCommand = userMessage;
 
         if (userMessage.startsWith("play")) {
             prepareChannelForStreaming(userMessage, socketChannel, key);
@@ -273,11 +237,7 @@ public class SpotifyServer implements AutoCloseable {
             prepareChannelToStopStreaming(socketChannel);
         } else {
             byte[] serverReply = commandInterpreter.interpretCommand(userMessage, socketChannel);
-
-            System.out.println("Server reply :" + new String(serverReply));
-
             writeToChannel(serverReply, socketChannel);
-            System.out.println("Server replied to client command: " + userMessage);
         }
 
     }
@@ -290,11 +250,8 @@ public class SpotifyServer implements AutoCloseable {
             SocketChannel accept = socketChannel.accept();
             accept.configureBlocking(false);
             accept.register(selector, SelectionKey.OP_READ);
-
-            System.out.println("Client connected to server");
-
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.log(Level.SEVERE, "Exception occurred while trying to accept connection " + socketChannel, e);
         }
     }
 

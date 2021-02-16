@@ -36,20 +36,11 @@ public class SpotifyStreamer {
 
     public void setSongForChannel(SocketChannel userChannel, String[] song) {
 
-//        System.out.printf("Song parameters: %s", Arrays.deepToString(song));
-
         List<String> matchedSongs = songRepository.searchSongs(song);
 
         if (matchedSongs.isEmpty()) {
-            System.out.println("Could not find match");
             return;
         }
-
-//        System.out.println("Set song for user");
-//        System.out.println("Matched songs: " + matchedSongs.toString());
-//
-//        System.out.printf("Matched song:%s", matchedSongs.get(0));
-
         String matchedSong = matchedSongs.get(0);
 
         channelToSong.put(userChannel, matchedSong);
@@ -72,8 +63,6 @@ public class SpotifyStreamer {
             return "No such song is Spotify!".getBytes(StandardCharsets.UTF_8);
         }
 
-        System.out.println("Song path:" + songAbsolutePath);
-
         try {
             AudioFormat format = AudioSystem.getAudioInputStream(new File(songAbsolutePath)).getFormat();
 
@@ -94,8 +83,6 @@ public class SpotifyStreamer {
              ObjectOutputStream out = new ObjectOutputStream(bos)) {
             out.writeObject(object);
 
-//            System.out.println(object.toString());
-
             return bos.toByteArray();
         } catch (IOException e) {
             throw new RuntimeException("Could not convert object to byte array");
@@ -112,13 +99,7 @@ public class SpotifyStreamer {
 
             long currentPositionInBytes = channelToSongCurrentBytes.get(socketChannel);
 
-//            System.out.println("current position in bytes: " + currentPositionInBytes);
-
             byte[] bytes = new byte[BUFFER_SIZE];
-
-            long skipped = stream.skip(currentPositionInBytes);
-
-//            System.out.println("skipped: " + skipped);
 
             int r = stream.read(bytes);
 
@@ -127,14 +108,10 @@ public class SpotifyStreamer {
             // reset song
             if (r == -1) {
 
-                System.out.println("clear song");
-
                 clearStreamingSocketChannel(socketChannel);
                 streamingChannels.remove(socketChannel);
                 return new byte[]{-1};
             }
-
-//            System.out.println("Stream available bytes: " + availableBytes);
 
             channelToSongCurrentBytes.put(socketChannel, currentPositionInBytes + availableBytes);
 
