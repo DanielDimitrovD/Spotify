@@ -111,7 +111,6 @@ public class SpotifyCommandExecutor {
         return spotifyClientRepository.login(tokens, userSocketChannel);
     }
 
-
     private byte[] register(String[] tokens) {
         return spotifyClientRepository.register(tokens);
     }

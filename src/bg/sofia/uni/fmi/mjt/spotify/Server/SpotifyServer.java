@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 public class SpotifyServer implements AutoCloseable {
 
     public static final int SERVER_PORT = 7777;
-    private static final String SERVER_HOST = "localhost";
+    public static final String SERVER_HOST = "localhost";
     private static final int BUFFER_SIZE = 1_024;
     private static final int STOP_SIGNAL_BYTE_SIZE = 1;
 
@@ -40,6 +40,8 @@ public class SpotifyServer implements AutoCloseable {
     private Map<String, SocketChannel> userToChannel = new HashMap<>();
     private Set<SocketChannel> candidatesToStopStreaming = new HashSet<>();
 
+    private String lastUserCommand;
+
 //    public SpotifyServer(int port, Path credentialsFile, Path playlistFile, String musicFolderURL) {
 //
 //        System.out.println("Spotify server constructor :" + playlistFile);
@@ -53,12 +55,11 @@ public class SpotifyServer implements AutoCloseable {
 //        buffer = ByteBuffer.allocate(BUFFER_SIZE);
 //    }
 
-    public SpotifyServer(int port, Selector selector, SpotifyStreamer spotifyStreamer, SpotifyCommandExecutor commandInterpreter) {
+    public SpotifyServer(int port, SpotifyStreamer spotifyStreamer, SpotifyCommandExecutor commandInterpreter) {
 
 //        System.out.println("Spotify server constructor :" + playlistFile);
 
         this.port = port;
-        this.selector = selector;
 
         this.spotifyStreamer = spotifyStreamer;
         this.commandInterpreter = commandInterpreter;
@@ -80,7 +81,7 @@ public class SpotifyServer implements AutoCloseable {
 
         final Selector selector = Selector.open();
 
-        try (var wishListServer = new SpotifyServer(1234, selector, spotifyStreamer, spotifyCommandExecutor)) {
+        try (var wishListServer = new SpotifyServer(1234, spotifyStreamer, spotifyCommandExecutor)) {
             wishListServer.start();
 
         } catch (Exception e) {
@@ -277,6 +278,7 @@ public class SpotifyServer implements AutoCloseable {
         byte[] responseBytes = readFromBuffer();
 
         String userMessage = new String(responseBytes, "UTF-8");
+        lastUserCommand = userMessage;
 
         if (userMessage.startsWith("play")) {
             prepareChannelForStreaming(userMessage, socketChannel, key);
