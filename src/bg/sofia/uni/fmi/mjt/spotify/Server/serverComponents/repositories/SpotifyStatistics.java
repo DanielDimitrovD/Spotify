@@ -24,7 +24,7 @@ public class SpotifyStatistics {
     }
 
     public void updateSong(String songName) {
-        songStreamingCountMap.putIfAbsent(songName, 1L);
+        songStreamingCountMap.putIfAbsent(songName, 0L);
         songStreamingCountMap.put(songName, songStreamingCountMap.get(songName) + 1);
     }
 

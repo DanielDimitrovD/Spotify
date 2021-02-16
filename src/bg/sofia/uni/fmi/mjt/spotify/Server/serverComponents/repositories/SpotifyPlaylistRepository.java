@@ -3,7 +3,6 @@ package bg.sofia.uni.fmi.mjt.spotify.Server.serverComponents.repositories;
 import bg.sofia.uni.fmi.mjt.spotify.Server.dto.Playlist;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import org.mockito.Mock;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
@@ -18,8 +17,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class SpotifyPlaylistRepository {
-
-    
 
     private final Path playlistFile;
     private final Type token = new TypeToken<Map<String, Map<String, Playlist>>>() {

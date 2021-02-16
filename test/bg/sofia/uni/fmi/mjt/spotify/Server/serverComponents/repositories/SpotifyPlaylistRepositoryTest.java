@@ -154,7 +154,71 @@ public class SpotifyPlaylistRepositoryTest {
     }
 
 
-//      return String.format("Song %s added successfully to playlist %s%n", song, playlistName)
+    @Test
+    public void testPlaylistAlreadyExistsResponse() throws UnsupportedEncodingException {
+        String command = "create-playlist bulgaria";
+        String email = "test";
+        String playlist = "bulgaria";
 
+        String song = Arrays.stream(command.split("\\s+")).skip(2).collect(Collectors.joining(" "));
+
+        byte[] response = spotifyPlaylistRepository.createPlaylist(email, command.split("\\s+"));
+        String responseReply = new String(response, "UTF-8");
+
+        String expected = String.format("Playlist already exists");
+
+        Assert.assertEquals("Expected playlist already exists response", expected, responseReply);
+    }
+
+    @Test
+    public void testPlaylistSuccessfullyCreatedResponse() throws UnsupportedEncodingException {
+        String command = "create-playlist tempo";
+        String email = "test";
+        String playlist = "tempo";
+
+        String song = Arrays.stream(command.split("\\s+")).skip(2).collect(Collectors.joining(" "));
+
+        byte[] response = spotifyPlaylistRepository.createPlaylist(email, command.split("\\s+"));
+        String responseReply = new String(response, "UTF-8");
+
+        String expected = String.format("Playlist successfully created");
+
+        Assert.assertEquals("Expected playlist successfully created response", expected, responseReply);
+    }
+
+    @Test
+    public void testShowPlaylistInfoPlaylistDoesNotExistResponse() throws UnsupportedEncodingException {
+        String command = "show-playlist rnb";
+        String email = "test";
+        String playlist = "rnb";
+
+        String song = Arrays.stream(command.split("\\s+")).skip(2).collect(Collectors.joining(" "));
+
+        byte[] response = spotifyPlaylistRepository.showPlaylist(email, command.split("\\s+"));
+        String responseReply = new String(response, "UTF-8");
+
+        String expected = String.format("Playlist %s does not exist. Please create it first%n", playlist);
+
+        Assert.assertEquals("Expected playlist does not exist response when trying to show info",
+                expected, responseReply);
+    }
+
+    @Test
+    public void testShowPlaylistInfoCommand() throws UnsupportedEncodingException {
+        String command = "show-playlist sofia";
+        String email = "dani";
+        String playlist = "sofia";
+
+        String song = Arrays.stream(command.split("\\s+")).skip(2).collect(Collectors.joining(" "));
+
+        byte[] response = spotifyPlaylistRepository.showPlaylist(email, command.split("\\s+"));
+        String responseReply = new String(response, "UTF-8");
+
+        String expected = String.format("Playlist name: sofia %n" +
+                                        "Songs: [Papi Hans - Hubavo mi Stava] %n");
+
+        Assert.assertEquals("Expected playlist info is not correct",
+                expected, responseReply);
+    }
 
 }
