@@ -25,8 +25,10 @@ public class SpotifyClientStreamingRunnable implements Runnable {
     public SpotifyClientStreamingRunnable(String command, String email) {
         String[] tokens = command.split("\\s+");
 
+        final int COMMAND_POSITION_IN_TOKENS = 1;
+
         this.command = String.format("%s %s %s", tokens[0], email, Arrays.stream(tokens)
-                .skip(1)
+                .skip(COMMAND_POSITION_IN_TOKENS)
                 .collect(Collectors.joining(" ")));
     }
 
@@ -49,6 +51,8 @@ public class SpotifyClientStreamingRunnable implements Runnable {
     }
 
     private void startAudioStreaming(AudioFormat format, SocketChannel socketChannel) throws LineUnavailableException, IOException {
+        SpotifyClient.isStreaming = true;
+
         DataLine.Info info = new DataLine.Info(SourceDataLine.class, format);
         SourceDataLine dataLine = (SourceDataLine) AudioSystem.getLine(info);
 
@@ -77,6 +81,8 @@ public class SpotifyClientStreamingRunnable implements Runnable {
                 socketChannel.close();
 
                 System.out.println("Stopped streaming");
+
+                SpotifyClient.isStreaming = false;
                 return;
             }
 
@@ -87,7 +93,6 @@ public class SpotifyClientStreamingRunnable implements Runnable {
 
             receivedBytes += bytes.length;
 
-//                System.out.println("received bytes:" + receivedBytes);
             dataLine.write(bytes, 0, bytes.length);
         }
     }
@@ -114,8 +119,6 @@ public class SpotifyClientStreamingRunnable implements Runnable {
             AudioFormat format = new AudioFormat(new AudioFormat.Encoding(dto.getEncoding()), dto.getSampleRate(),
                     dto.getSampleSizeInBits(), dto.getChannels(), dto.getFrameSize(),
                     dto.getFrameRate(), dto.isBigEndian());
-
-//            System.out.println(dto.toString());
 
             startAudioStreaming(format, socketChannel);
         } catch (Exception e) {

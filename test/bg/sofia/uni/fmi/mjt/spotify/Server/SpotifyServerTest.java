@@ -1,6 +1,6 @@
 package bg.sofia.uni.fmi.mjt.spotify.Server;
 
-import bg.sofia.uni.fmi.mjt.spotify.Server.serverComponents.SpotifyStreamer;
+import bg.sofia.uni.fmi.mjt.spotify.Server.components.SpotifyStreamer;
 import junit.framework.Assert;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;

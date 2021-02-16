@@ -1,10 +1,10 @@
 package bg.sofia.uni.fmi.mjt.spotify.Server;
 
+import bg.sofia.uni.fmi.mjt.spotify.Server.components.repositories.SpotifyClientRepository;
+import bg.sofia.uni.fmi.mjt.spotify.Server.components.repositories.SpotifyPlaylistRepository;
+import bg.sofia.uni.fmi.mjt.spotify.Server.components.repositories.SpotifySongRepository;
+import bg.sofia.uni.fmi.mjt.spotify.Server.components.repositories.SpotifyStatistics;
 import bg.sofia.uni.fmi.mjt.spotify.Server.enums.SpotifyCommands;
-import bg.sofia.uni.fmi.mjt.spotify.Server.serverComponents.repositories.SpotifyClientRepository;
-import bg.sofia.uni.fmi.mjt.spotify.Server.serverComponents.repositories.SpotifyPlaylistRepository;
-import bg.sofia.uni.fmi.mjt.spotify.Server.serverComponents.repositories.SpotifySongRepository;
-import bg.sofia.uni.fmi.mjt.spotify.Server.serverComponents.repositories.SpotifyStatistics;
 
 import java.nio.channels.SocketChannel;
 import java.nio.charset.StandardCharsets;
@@ -16,7 +16,6 @@ import java.util.stream.Collectors;
 
 public class SpotifyCommandExecutor {
 
-    private final static String NO_PERMISSION_MESSAGE = "Please login in the system to use this command!";
     private final SpotifyClientRepository spotifyClientRepository;
     private final SpotifyPlaylistRepository spotifyPlaylistRepository;
 
@@ -125,7 +124,7 @@ public class SpotifyCommandExecutor {
 
         if (tokens.length != TOP_N_COMMAND_NUMBER_OF_PARAMETERS) {
             return String.format("Wrong number of parameters. Must be top <n*> where " +
-                                  "n is a non-negative number%n")
+                                 "n is a non-negative number%n")
                     .getBytes(StandardCharsets.UTF_8);
         }
 
@@ -138,9 +137,16 @@ public class SpotifyCommandExecutor {
                     .getBytes(StandardCharsets.UTF_8);
         }
 
-        List<String> topSongs = SpotifyStatistics.getNMostPopularSongs(number)
-                .stream()
-                .collect(Collectors.toList());
+        List<String> topSongs = null;
+
+        try {
+            topSongs = SpotifyStatistics.getNMostPopularSongs(number)
+                    .stream()
+                    .collect(Collectors.toList());
+        } catch (IndexOutOfBoundsException e) {
+            return String.format("N must be a non-negative number. Command top <n*>%n")
+                    .getBytes(StandardCharsets.UTF_8);
+        }
 
         if (topSongs.isEmpty()) {
             return String.format("No songs played in the system%n").getBytes(StandardCharsets.UTF_8);

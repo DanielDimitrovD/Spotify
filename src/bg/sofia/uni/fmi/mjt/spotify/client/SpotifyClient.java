@@ -1,13 +1,12 @@
 package bg.sofia.uni.fmi.mjt.spotify.client;
 
-import bg.sofia.uni.fmi.mjt.spotify.ClientExceptions.ClientConnectionException;
+import bg.sofia.uni.fmi.mjt.spotify.exceptions.ClientConnectionException;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
 import java.util.Scanner;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -18,35 +17,20 @@ public class SpotifyClient {
     private static final String SERVER_HOST = "localhost";
     private static final int BUFFER_SIZE = 1_024;
 
-
+    private final static String NOT_LOGGED_IN_MESSAGE = String.format("Please login into Spotify!");
+    private final static String WAIT_FOR_STREAMING_NO_END_MESSAGE = String.format("Please wait for streaming to end");
+    private final static String LOGGED_IN_MESSAGE = String.format("logged in successfully");
+    private final static String STOP_STREAMING_MESSAGE = String.format("Stopped streaming");
+    private final static String DISCONNECT_MESSAGE = String.format("disconnected");
+    public static boolean isStreaming = false;
     private static ByteBuffer buffer = ByteBuffer.allocateDirect(BUFFER_SIZE);
-
-
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
-
     private String email;
     private boolean isLogged = false;
-    private boolean isStreaming = false;
-
 
     public static void main(String[] args) {
         SpotifyClient spotifyClient = new SpotifyClient();
         spotifyClient.startClient();
-    }
-
-    private void printSongs() {
-        System.out.println(String.join(System.lineSeparator(),
-                List.of(
-                        "1. Ice Cream - Захир (HD)%n",
-                        "2. Iggy Azalea - Black Widow ft. Rita Ora",
-                        "3. Iggy Azalea - Fancy ft. Charli XCX",
-                        "4. INNA - Take Me Higher (by Play&amp;Win) [Online Video]",
-                        "5. Inna feat. Marian Hill - Diggy Down",
-                        "6. Jason Derulo - &quot;Talk Dirty&quot; feat. 2Chainz (Official HD Music Video)",
-                        "7. Jason Derulo - Wiggle feat. Snoop Dogg (Official HD Music Video)",
-                        "8. Jay Z ft. Kanye West - Niggas in Paris (Official music video)",
-                        "9. Eminem - Till I Collapse",
-                        "10. Papi Hans - Hubavo mi stava Х2 (ft. Sando & Mando)")));
     }
 
     private byte[] readMessage(SocketChannel socketChannel) throws IOException {
@@ -85,40 +69,36 @@ public class SpotifyClient {
                 if (message.startsWith("play")) {
 
                     if (!isLogged) {
-                        System.out.println("Please login into Spotify!");
+                        System.out.println(NOT_LOGGED_IN_MESSAGE);
+                        continue;
+                    }
+
+                    if (isStreaming) {
+                        System.out.println(WAIT_FOR_STREAMING_NO_END_MESSAGE);
                         continue;
                     }
 
                     executorService.execute(new SpotifyClientStreamingRunnable(message, email));
-                    isStreaming = true;
                 } else {
                     writeToChannel(message.getBytes(StandardCharsets.UTF_8), socketChannel);
                     byte[] byteArray = readMessage(socketChannel);
 
                     String reply = new String(byteArray, "UTF-8");
 
-                    System.out.print(reply);
+                    System.out.println(reply);
 
-                    if (reply.contains("logged in successfully")) {
+                    if (reply.contains(LOGGED_IN_MESSAGE)) {
                         this.email = reply.split("\\s+")[0];
                         this.isLogged = true;
-                    }
-
-                    if (reply.contains("Die streaming")) {
+                    } else if (reply.contains(STOP_STREAMING_MESSAGE)) {
                         this.isStreaming = false;
-                    }
-
-                    if (reply.contains("disconnected")) {
+                    } else if (reply.contains(DISCONNECT_MESSAGE)) {
                         executorService.shutdown();
-                        return;
                     }
                 }
             }
         } catch (IOException e) {
             throw new ClientConnectionException("There is a problem with the network communication", e.getCause());
         }
-
     }
-
-
 }

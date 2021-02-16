@@ -1,8 +1,8 @@
 package bg.sofia.uni.fmi.mjt.spotify.Server;
 
-import bg.sofia.uni.fmi.mjt.spotify.Server.serverComponents.SpotifyStreamer;
-import bg.sofia.uni.fmi.mjt.spotify.Server.serverComponents.repositories.SpotifyClientRepository;
-import bg.sofia.uni.fmi.mjt.spotify.Server.serverComponents.repositories.SpotifySongRepository;
+import bg.sofia.uni.fmi.mjt.spotify.Server.components.SpotifyStreamer;
+import bg.sofia.uni.fmi.mjt.spotify.Server.components.repositories.SpotifyClientRepository;
+import bg.sofia.uni.fmi.mjt.spotify.Server.components.repositories.SpotifySongRepository;
 import bg.sofia.uni.fmi.mjt.spotify.serverException.ServerStartupException;
 
 import javax.sound.sampled.UnsupportedAudioFileException;
@@ -65,8 +65,6 @@ public class SpotifyServer implements AutoCloseable {
 
         final SpotifyStreamer spotifyStreamer = new SpotifyStreamer(musicFolderURL);
         final SpotifyCommandExecutor spotifyCommandExecutor = new SpotifyCommandExecutor(credentials, playlists);
-
-        final Selector selector = Selector.open();
 
         try (var wishListServer = new SpotifyServer(1234, spotifyStreamer, spotifyCommandExecutor)) {
             wishListServer.start();
