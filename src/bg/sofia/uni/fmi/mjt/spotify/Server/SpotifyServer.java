@@ -286,8 +286,11 @@ public class SpotifyServer implements AutoCloseable {
             prepareChannelToStopStreaming(socketChannel);
         } else {
             byte[] serverReply = commandInterpreter.interpretCommand(userMessage, socketChannel);
+
+            System.out.println("Server reply :"  + new String(serverReply));
+
             writeToChannel(serverReply, socketChannel);
-            System.out.println("Server replied to client command" + userMessage);
+            System.out.println("Server replied to client command: " + userMessage);
         }
 
     }

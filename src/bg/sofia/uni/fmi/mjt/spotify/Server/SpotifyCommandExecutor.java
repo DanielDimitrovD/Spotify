@@ -10,7 +10,6 @@ import java.nio.channels.SocketChannel;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.Arrays;
-import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -125,7 +124,8 @@ public class SpotifyCommandExecutor {
         final int TOP_N_COMMAND_NUMBER_OF_PARAMETERS = 2;
 
         if (tokens.length != TOP_N_COMMAND_NUMBER_OF_PARAMETERS) {
-            return "Wrong number of parameters. Must be top <n*> where n is a non-negative number"
+            return String.format("Wrong number of parameters. Must be top <n*> where " +
+                                  "n is a non-negative number%n")
                     .getBytes(StandardCharsets.UTF_8);
         }
 
@@ -133,8 +133,8 @@ public class SpotifyCommandExecutor {
 
         try {
             number = Integer.parseInt(tokens[TOP_N_COMMAND_PARAMETER_INDEX]);
-        } catch (InputMismatchException e) {
-            return "Wrong command format. Must be top <n*> where n is a non-negative number"
+        } catch (NumberFormatException e) {
+            return String.format("Wrong command format. Must be top <n*> where n is a non-negative number%n")
                     .getBytes(StandardCharsets.UTF_8);
         }
 
