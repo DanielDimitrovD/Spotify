@@ -47,6 +47,8 @@ public class SpotifyPlaylistRepositoryTest {
         System.out.println(playlistMap.toString());
 
         try {
+
+            Files.deleteIfExists(Path.of("test_playlist.json"));
             Files.createFile(Path.of("test_playlist.json"));
             playlistFile = Path.of("test_playlist.json");
         } catch (Exception e) {
@@ -165,7 +167,7 @@ public class SpotifyPlaylistRepositoryTest {
         byte[] response = spotifyPlaylistRepository.createPlaylist(email, command.split("\\s+"));
         String responseReply = new String(response, "UTF-8");
 
-        String expected = String.format("Playlist already exists");
+        String expected = String.format("Playlist already exists%n");
 
         Assert.assertEquals("Expected playlist already exists response", expected, responseReply);
     }
@@ -181,7 +183,7 @@ public class SpotifyPlaylistRepositoryTest {
         byte[] response = spotifyPlaylistRepository.createPlaylist(email, command.split("\\s+"));
         String responseReply = new String(response, "UTF-8");
 
-        String expected = String.format("Playlist successfully created");
+        String expected = String.format("Playlist successfully created%n");
 
         Assert.assertEquals("Expected playlist successfully created response", expected, responseReply);
     }

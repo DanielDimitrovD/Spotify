@@ -123,7 +123,7 @@ public class SpotifyPlaylistRepository {
         userPlaylistMap.putIfAbsent(email, new HashMap<>());
 
         if (userPlaylistMap.get(email).containsKey(playlistName)) {
-            return "Playlist already exists".getBytes(StandardCharsets.UTF_8);
+            return String.format("Playlist already exists%n").getBytes(StandardCharsets.UTF_8);
         } else {
 
             Playlist newPlaylist = new Playlist(playlistName, new ArrayList<>());
@@ -138,10 +138,10 @@ public class SpotifyPlaylistRepository {
 
         try {
             Files.writeString(playlistFile, toJson, StandardOpenOption.CREATE, StandardOpenOption.WRITE);
-            return "Playlist successfully created".getBytes(StandardCharsets.UTF_8);
+            return String.format("Playlist successfully created%n").getBytes(StandardCharsets.UTF_8);
         } catch (IOException e) {
             e.printStackTrace();
-            return "Playlist not created error".getBytes(StandardCharsets.UTF_8);
+            return String.format("Playlist not created error%n").getBytes(StandardCharsets.UTF_8);
         }
     }
 

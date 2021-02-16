@@ -143,7 +143,7 @@ public class SpotifyCommandExecutor {
                 .collect(Collectors.toList());
 
         if (topSongs.isEmpty()) {
-            return "No songs played in the system".getBytes(StandardCharsets.UTF_8);
+            return String.format("No songs played in the system%n").getBytes(StandardCharsets.UTF_8);
         }
 
         return topSongs.stream()

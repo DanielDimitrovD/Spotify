@@ -12,7 +12,9 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -115,7 +117,7 @@ public class SpotifyServerTest {
     }
 
     @Test
-    public void searchSongInSpotify() throws IOException {
+    public void testsSarchSongInSpotify() throws IOException {
         List<String> command = List.of("register ceco 1234", "login ceco 1234", "search Papi");
         List<String> reply = getListOfReplies(command);
         String expected = String.format("Lariss - Dale Papi%n");
@@ -125,7 +127,7 @@ public class SpotifyServerTest {
     }
 
     @Test
-    public void getTopNSongs() throws IOException {
+    public void testGetTopNSongsWrongCommandFormat() throws IOException {
         List<String> command = List.of("register vesko 1234", "login vesko 1234", "top asdf");
         List<String> reply = getListOfReplies(command);
         String expected = String.format("Wrong command format. Must be top <n*> where n is a non-negative number" +
@@ -135,16 +137,94 @@ public class SpotifyServerTest {
                 expected, reply.get(2));
     }
 
-//    @Test
-//    public void testCreatePlaylist() throws IOException {
-//        List<String> command = List.of("register desi 1234", "login desi 1234", "create-playlist FMI");
-//        List<String> reply = getListOfReplies(command);
-//        String expected = String.format("Lariss - Dale Papi%n");
-//
-//        Assert.assertEquals("Searched songs are not correct",
-//                expected, reply.get(2));
-//    }
+    @Test
+    public void testGetTopNSongsNoSongsInSystem() throws IOException {
+        List<String> command = List.of("register desko 1234", "login desko 1234", "top 5");
+        List<String> reply = getListOfReplies(command);
+        String expected = String.format("No songs played in the system%n");
 
+        Assert.assertEquals("There should be no songs in the system", expected, reply.get(2));
+    }
+
+    @Test
+    public void testCreatePlaylist() throws IOException {
+        List<String> command = List.of("register desi 1234", "login desi 1234", "create-playlist FMI");
+        List<String> reply = getListOfReplies(command);
+        String expected = String.format("Playlist successfully created%n");
+
+        Assert.assertEquals("Playlist should be successfully created",
+                expected, reply.get(2));
+    }
+
+    @Test
+    public void testCreatePlaylistAlreadyExists() throws IOException {
+        List<String> command = List.of("register pesho 1234", "login pesho 1234", "create-playlist FMI",
+                "create-playlist FMI");
+        List<String> reply = getListOfReplies(command);
+        String expected = String.format("Playlist already exists%n");
+
+        Assert.assertEquals("There must be an existing playlist already",
+                expected, reply.get(3));
+    }
+
+    @Test
+    public void testAddSongToPlaylist() throws IOException {
+        List<String> command = List.of("register gesho 1234", "login gesho 1234", "create-playlist FMI",
+                "add-song-to FMI Papi Hans - Hubavo mi Stava");
+        List<String> reply = getListOfReplies(command);
+        String expected = String.format("Song Papi Hans - Hubavo mi Stava added successfully to playlist FMI%n");
+
+        Assert.assertEquals("There must be an existing playlist already",
+                expected, reply.get(3));
+    }
+
+    @Test
+    public void testShowPlaylist() throws IOException {
+        List<String> command = List.of("register mesho 1234", "login mesho 1234", "create-playlist FMI",
+                "add-song-to FMI Papi Hans - Hubavo mi Stava", "show-playlist FMI");
+        List<String> reply = getListOfReplies(command);
+        String expected = String.format("Playlist name: FMI %n");
+
+        Assert.assertEquals("There must be an existing playlist already",
+                expected, reply.get(4));
+    }
+
+    @Test
+    public void testPlaySongReturnsAudioFormatHeader() {
+
+        List<String> commands = List.of("register tesho 1234", "login tesho 1234",
+                "play tesho Papi Hans - Hubavo mi stava");
+
+        try (SocketChannel socketChannel = SocketChannel.open()) {
+            socketChannel.connect(new InetSocketAddress(SERVER_HOST, SERVER_PORT));
+            ByteBuffer buffer = ByteBuffer.allocateDirect(1_024);
+
+            for (int i = 0; i < commands.size(); i++) {
+
+                buffer.clear();
+                buffer.put(commands.get(i).getBytes(StandardCharsets.UTF_8));
+                buffer.flip();
+                socketChannel.write(buffer);
+
+                buffer.clear();
+                socketChannel.read(buffer);
+
+                buffer.flip();
+
+                byte[] bytes = new byte[buffer.remaining()];
+                buffer.get(bytes);
+
+                if (i == commands.size() - 1) {
+                    String failCondition = String.format("No such song in Spotify%n");
+                    Assert.assertFalse(commands.get(commands.size() - 1).equals(failCondition));
+                }
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
 
     private List<String> getListOfReplies(List<String> commands) throws IOException {
 
@@ -163,9 +243,7 @@ public class SpotifyServerTest {
             for (String command : commands) {
                 out.println(command);
 
-                System.out.println("waiting reply");
                 String reply = String.format("%s%n", in.readLine());
-
                 replies.add(reply);
             }
 
